@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>الإعدادات — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <nav class="bg-white shadow px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3"><a href="/admin/" class="text-gray-400 hover:text-primary-600">→</a><span class="font-extrabold text-primary-700">⚙️ الإعدادات</span></div>
+    <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold">خروج</button>
+  </nav>
+
+  <main class="max-w-lg mx-auto px-4 py-10">
+    <form id="pw-form" class="bg-white rounded-2xl shadow p-6 space-y-4">
+      <div class="text-center text-4xl mb-2">🔑</div>
+      <h2 class="font-bold text-lg text-center">تغيير كلمة المرور</h2>
+      <div>
+        <label class="block text-sm font-bold mb-1">كلمة المرور الحالية</label>
+        <input id="old-pw" type="password" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">كلمة المرور الجديدة</label>
+        <input id="new-pw" type="password" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">تأكيد كلمة المرور الجديدة</label>
+        <input id="confirm-pw" type="password" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+      </div>
+      <p id="msg" class="text-sm font-bold text-center hidden"></p>
+      <button type="submit" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold transition">تغيير كلمة المرور</button>
+    </form>
+  </main>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    if (!localStorage.getItem('admin_logged')) location.href = '/admin/login.html';
+    function logout() { localStorage.removeItem('admin_logged'); location.href = '/admin/login.html'; }
+
+    document.getElementById('pw-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const msgEl = document.getElementById('msg');
+      msgEl.classList.add('hidden');
+
+      const oldPw = document.getElementById('old-pw').value;
+      const newPw = document.getElementById('new-pw').value;
+      const confirmPw = document.getElementById('confirm-pw').value;
+
+      if (newPw !== confirmPw) { showMsg('كلمة المرور الجديدة غير متطابقة', 'red'); return; }
+      if (newPw.length < 6) { showMsg('كلمة المرور يجب أن تكون 6 أحرف على الأقل', 'red'); return; }
+
+      const adminId = localStorage.getItem('admin_id');
+      const { data: admin } = await db.from('Admin').select('*').eq('id', parseInt(adminId)).single();
+      if (!admin) { showMsg('خطأ في الحساب', 'red'); return; }
+
+      const match = dcodeIO.bcrypt.compareSync(oldPw, admin.password);
+      if (!match) { showMsg('كلمة المرور الحالية غلط', 'red'); return; }
+
+      const newHash = dcodeIO.bcrypt.hashSync(newPw, 10);
+      await db.from('Admin').update({ password: newHash }).eq('id', parseInt(adminId));
+      showMsg('تم تغيير كلمة المرور بنجاح ✅', 'green');
+      document.getElementById('old-pw').value = '';
+      document.getElementById('new-pw').value = '';
+      document.getElementById('confirm-pw').value = '';
+    });
+
+    function showMsg(text, color) {
+      const el = document.getElementById('msg');
+      el.textContent = text;
+      el.className = `text-sm font-bold text-center text-${color}-600`;
+      el.classList.remove('hidden');
+    }
+  </script>
+</body>
+</html>

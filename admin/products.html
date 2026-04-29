@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إدارة المنتجات — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100 text-gray-800">
+  <nav class="bg-white shadow px-4 py-3 flex items-center justify-between">
+    <div class="flex items-center gap-3"><a href="/admin/" class="text-gray-400 hover:text-primary-600">→</a><span class="font-extrabold text-primary-700">📦 إدارة المنتجات</span></div>
+    <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold">خروج</button>
+  </nav>
+
+  <main class="max-w-6xl mx-auto px-4 py-8">
+    <div class="flex items-center justify-between mb-6">
+      <h1 class="text-xl font-extrabold" id="count-title">المنتجات</h1>
+      <button onclick="showForm()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition">+ إضافة منتج</button>
+    </div>
+
+    <!-- Add/Edit Form -->
+    <div id="form-section" class="hidden bg-white rounded-2xl shadow p-6 mb-6">
+      <h2 id="form-title" class="font-bold text-lg mb-4">إضافة منتج جديد</h2>
+      <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+        <input type="hidden" id="p-id">
+        <input id="p-name" required placeholder="اسم المنتج *" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+        <select id="p-cat" required class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none"><option value="">اختر التصنيف *</option></select>
+        <input id="p-price" required type="number" step="0.01" placeholder="السعر *" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+        <input id="p-oldprice" type="number" step="0.01" placeholder="السعر القديم (اختياري)" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+        <input id="p-stock" type="number" placeholder="الكمية المتاحة" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+        <input id="p-unit" placeholder="الوحدة (مثل: 100 جرام)" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+        <input id="p-image" placeholder="رابط الصورة أو إيموجي" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+        <div class="flex items-center gap-4">
+          <label class="flex items-center gap-2"><input id="p-featured" type="checkbox"> <span class="text-sm font-bold">مميز ⭐</span></label>
+          <label class="flex items-center gap-2"><input id="p-active" type="checkbox" checked> <span class="text-sm font-bold">نشط ✅</span></label>
+        </div>
+        <textarea id="p-desc" placeholder="وصف المنتج" rows="2" class="md:col-span-2 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none"></textarea>
+        <div class="md:col-span-2 flex gap-3">
+          <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-xl font-bold transition">حفظ</button>
+          <button type="button" onclick="hideForm()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-xl font-bold transition">إلغاء</button>
+        </div>
+      </form>
+    </div>
+
+    <div id="products-list" class="space-y-3"><div class="loader"></div></div>
+  </main>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    if (!localStorage.getItem('admin_logged')) location.href = '/admin/login.html';
+    function logout() { localStorage.removeItem('admin_logged'); location.href = '/admin/login.html'; }
+
+    let categories = [];
+
+    async function loadCategories() {
+      const { data } = await db.from('Category').select('*');
+      categories = data || [];
+      const sel = document.getElementById('p-cat');
+      sel.innerHTML = '<option value="">اختر التصنيف *</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+    }
+
+    async function loadProducts() {
+      const { data } = await db.from('Product').select('*, Category(name)').order('createdAt', { ascending: false });
+      document.getElementById('count-title').textContent = `المنتجات (${data?.length || 0})`;
+      document.getElementById('products-list').innerHTML = (data && data.length)
+        ? data.map(p => `
+          <div class="bg-white rounded-xl shadow p-4 flex items-center gap-4">
+            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">${p.image || '🌿'}</div>
+            <div class="flex-1">
+              <h3 class="font-bold text-sm">${p.name}</h3>
+              <p class="text-xs text-gray-400">${p.Category?.name || ''} · ${p.unit || ''} ${!p.active ? '<span class="text-red-500">غير نشط</span>' : ''} ${p.featured ? '⭐' : ''}</p>
+            </div>
+            <span class="font-extrabold text-primary-700 text-sm">${p.price} ${CURRENCY}</span>
+            <button onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="text-blue-500 hover:text-blue-700 text-sm font-bold">تعديل</button>
+            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 text-sm font-bold">حذف</button>
+          </div>`).join('')
+        : '<p class="text-gray-400 text-center py-10">لا توجد منتجات</p>';
+    }
+
+    function slugify(text) {
+      return text.replace(/\s+/g, '-').replace(/[^\u0621-\u064Aa-zA-Z0-9-]/g, '').toLowerCase() || 'product-' + Date.now();
+    }
+
+    function showForm() { document.getElementById('form-section').classList.remove('hidden'); document.getElementById('form-title').textContent = 'إضافة منتج جديد'; resetForm(); }
+    function hideForm() { document.getElementById('form-section').classList.add('hidden'); resetForm(); }
+    function resetForm() { document.getElementById('p-id').value = ''; document.getElementById('p-name').value = ''; document.getElementById('p-cat').value = ''; document.getElementById('p-price').value = ''; document.getElementById('p-oldprice').value = ''; document.getElementById('p-stock').value = ''; document.getElementById('p-unit').value = ''; document.getElementById('p-image').value = ''; document.getElementById('p-desc').value = ''; document.getElementById('p-featured').checked = false; document.getElementById('p-active').checked = true; }
+
+    function editProduct(p) {
+      document.getElementById('form-section').classList.remove('hidden');
+      document.getElementById('form-title').textContent = 'تعديل المنتج';
+      document.getElementById('p-id').value = p.id;
+      document.getElementById('p-name').value = p.name;
+      document.getElementById('p-cat').value = p.categoryId;
+      document.getElementById('p-price').value = p.price;
+      document.getElementById('p-oldprice').value = p.oldPrice || '';
+      document.getElementById('p-stock').value = p.stock || '';
+      document.getElementById('p-unit').value = p.unit || '';
+      document.getElementById('p-image').value = p.image || '';
+      document.getElementById('p-desc').value = p.description || '';
+      document.getElementById('p-featured').checked = p.featured;
+      document.getElementById('p-active').checked = p.active;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    async function deleteProduct(id) {
+      if (!confirm('هل أنت متأكد من حذف هذا المنتج؟')) return;
+      await db.from('Product').delete().eq('id', id);
+      loadProducts();
+    }
+
+    document.getElementById('product-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const id = document.getElementById('p-id').value;
+      const data = {
+        name: document.getElementById('p-name').value,
+        slug: slugify(document.getElementById('p-name').value) + (id ? '' : '-' + Date.now()),
+        categoryId: parseInt(document.getElementById('p-cat').value),
+        price: parseFloat(document.getElementById('p-price').value),
+        oldPrice: parseFloat(document.getElementById('p-oldprice').value) || null,
+        stock: parseInt(document.getElementById('p-stock').value) || 0,
+        unit: document.getElementById('p-unit').value || 'قطعة',
+        image: document.getElementById('p-image').value || '',
+        description: document.getElementById('p-desc').value || '',
+        featured: document.getElementById('p-featured').checked,
+        active: document.getElementById('p-active').checked,
+      };
+
+      if (id) {
+        await db.from('Product').update(data).eq('id', parseInt(id));
+      } else {
+        await db.from('Product').insert(data);
+      }
+      hideForm();
+      loadProducts();
+    });
+
+    loadCategories();
+    loadProducts();
+  </script>
+</body>
+</html>

@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>دخول لوحة التحكم — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-100 min-h-screen flex items-center justify-center">
+  <div class="bg-white rounded-2xl shadow-lg p-8 w-full max-w-sm">
+    <div class="text-center mb-6">
+      <div class="text-4xl mb-2">🔐</div>
+      <h1 class="text-xl font-extrabold">لوحة التحكم</h1>
+      <p class="text-sm text-gray-400">عطارة اليرموك</p>
+    </div>
+    <form id="login-form" class="space-y-4">
+      <input id="username" required placeholder="اسم المستخدم" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+      <input id="password" required type="password" placeholder="كلمة المرور" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+      <button type="submit" id="login-btn" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold transition">دخول</button>
+      <p id="err" class="text-red-500 text-sm font-bold text-center hidden"></p>
+    </form>
+  </div>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="https://cdn.jsdelivr.net/npm/bcryptjs@2.4.3/dist/bcrypt.min.js"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    if (localStorage.getItem('admin_logged')) location.href = '/admin/';
+
+    document.getElementById('login-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('login-btn');
+      btn.disabled = true; btn.textContent = 'جاري الدخول...';
+      document.getElementById('err').classList.add('hidden');
+
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+
+      try {
+        const { data: admin } = await db.from('Admin').select('*').eq('username', username).single();
+        if (!admin) throw new Error('not found');
+
+        const match = dcodeIO.bcrypt.compareSync(password, admin.password);
+        if (!match) throw new Error('wrong');
+
+        localStorage.setItem('admin_logged', 'true');
+        localStorage.setItem('admin_id', admin.id);
+        location.href = '/admin/';
+      } catch {
+        document.getElementById('err').textContent = 'اسم المستخدم أو كلمة المرور غلط';
+        document.getElementById('err').classList.remove('hidden');
+        btn.disabled = false; btn.textContent = 'دخول';
+      }
+    });
+  </script>
+</body>
+</html>

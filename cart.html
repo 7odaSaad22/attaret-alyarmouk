@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>سلة التسوق — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="navbar"></div>
+  <main class="max-w-4xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-extrabold mb-8">🛒 سلة التسوق</h1>
+    <div id="cart-content"></div>
+  </main>
+  <div id="footer"></div>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    initPage();
+    renderCartPage();
+
+    function renderCartPage() {
+      const cart = getCart();
+      if (cart.length === 0) {
+        document.getElementById('cart-content').innerHTML = `
+          <div class="text-center py-20">
+            <div class="text-6xl mb-4">🛒</div>
+            <p class="text-gray-400 text-xl mb-6">السلة فارغة</p>
+            <a href="/products.html" class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-xl font-bold transition">تسوّق الآن</a>
+          </div>`;
+        return;
+      }
+
+      const subtotal = getCartTotal();
+      document.getElementById('cart-content').innerHTML = `
+        <div class="space-y-4 mb-6">
+          ${cart.map(item => `
+            <div class="bg-white rounded-2xl shadow p-4 flex items-center gap-4">
+              <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
+                ${item.image ? (item.image.startsWith('http') ? `<img src="${item.image}" class="w-full h-full object-cover rounded-xl">` : item.image) : '🌿'}
+              </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-sm">${item.name}</h3>
+                <p class="text-primary-700 font-bold text-sm">${item.price} ${CURRENCY}</p>
+              </div>
+              <div class="flex items-center gap-2">
+                <button onclick="updateQty(${item.id}, ${item.qty - 1})" class="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg font-bold transition">-</button>
+                <span class="font-bold w-6 text-center">${item.qty}</span>
+                <button onclick="updateQty(${item.id}, ${item.qty + 1})" class="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg font-bold transition">+</button>
+              </div>
+              <div class="text-left w-20">
+                <p class="font-extrabold text-sm">${(item.price * item.qty).toFixed(0)} ${CURRENCY}</p>
+              </div>
+              <button onclick="removeItem(${item.id})" class="text-red-400 hover:text-red-600 transition text-lg">✕</button>
+            </div>
+          `).join('')}
+        </div>
+        <div class="bg-white rounded-2xl shadow p-6">
+          <div class="flex justify-between mb-2"><span>المجموع الفرعي</span><span class="font-bold">${subtotal.toFixed(0)} ${CURRENCY}</span></div>
+          <div class="flex justify-between mb-2"><span>الشحن</span><span class="font-bold">${SHIPPING_COST} ${CURRENCY}</span></div>
+          <hr class="my-3">
+          <div class="flex justify-between text-lg"><span class="font-extrabold">الإجمالي</span><span class="font-extrabold text-primary-700">${(subtotal + SHIPPING_COST).toFixed(0)} ${CURRENCY}</span></div>
+          <a href="/checkout.html" class="block text-center bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold mt-4 transition">إتمام الطلب</a>
+        </div>`;
+    }
+
+    function updateQty(id, qty) {
+      if (qty < 1) { removeItem(id); return; }
+      updateCartQty(id, qty);
+      renderCartPage();
+    }
+    function removeItem(id) {
+      removeFromCart(id);
+      renderCartPage();
+    }
+  </script>
+</body>
+</html>

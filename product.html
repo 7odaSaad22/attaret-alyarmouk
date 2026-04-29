@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تفاصيل المنتج — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="navbar"></div>
+  <main class="max-w-5xl mx-auto px-4 py-10">
+    <div id="product-content"><div class="loader"></div></div>
+  </main>
+  <div id="footer"></div>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    initPage();
+    (async () => {
+      const slug = new URLSearchParams(location.search).get('slug');
+      if (!slug) { document.getElementById('product-content').innerHTML = '<p class="text-center py-20 text-gray-400">منتج غير موجود</p>'; return; }
+
+      const { data: p } = await db.from('Product').select('*, Category(name, slug)').eq('slug', slug).single();
+      if (!p) { document.getElementById('product-content').innerHTML = '<p class="text-center py-20 text-gray-400">منتج غير موجود</p>'; return; }
+
+      document.title = p.name + ' — عطارة اليرموك';
+      const hasDiscount = p.oldPrice && p.oldPrice > p.price;
+
+      document.getElementById('product-content').innerHTML = `
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+          <div class="bg-white rounded-2xl shadow flex items-center justify-center aspect-square text-8xl">
+            ${p.image ? (p.image.startsWith('http') ? `<img src="${p.image}" class="w-full h-full object-cover rounded-2xl" alt="${p.name}">` : p.image) : '🌿'}
+          </div>
+          <div>
+            <nav class="text-sm text-gray-400 mb-4">
+              <a href="/" class="hover:text-primary-600">الرئيسية</a> /
+              <a href="/category.html?slug=${p.Category?.slug}" class="hover:text-primary-600">${p.Category?.name || ''}</a> /
+              <span class="text-gray-600">${p.name}</span>
+            </nav>
+            <h1 class="text-2xl md:text-3xl font-extrabold mb-2">${p.name}</h1>
+            <p class="text-gray-400 mb-4">${p.unit || 'قطعة'}</p>
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-3xl font-extrabold text-primary-700">${p.price} ${CURRENCY}</span>
+              ${hasDiscount ? `<span class="text-gray-400 line-through text-lg">${p.oldPrice} ${CURRENCY}</span><span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-lg font-bold">خصم ${Math.round((1 - p.price/p.oldPrice)*100)}%</span>` : ''}
+            </div>
+            <p class="text-gray-600 mb-6 leading-relaxed">${p.description || ''}</p>
+            <div class="flex items-center gap-3 mb-4">
+              <button onclick="changeQty(-1)" class="bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-xl font-bold text-lg transition">-</button>
+              <span id="qty" class="text-xl font-bold w-8 text-center">1</span>
+              <button onclick="changeQty(1)" class="bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-xl font-bold text-lg transition">+</button>
+            </div>
+            <button onclick="handleAdd()" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold text-lg transition">🛒 أضف للسلة</button>
+            <p id="added-msg" class="text-green-600 font-bold text-center mt-3 hidden">✅ تمت الإضافة للسلة</p>
+          </div>
+        </div>`;
+
+      window._product = p;
+    })();
+
+    let qty = 1;
+    function changeQty(d) {
+      qty = Math.max(1, qty + d);
+      document.getElementById('qty').textContent = qty;
+    }
+    function handleAdd() {
+      const p = window._product;
+      addToCart({ id: p.id, name: p.name, slug: p.slug, price: p.price, image: p.image, unit: p.unit }, qty);
+      const msg = document.getElementById('added-msg');
+      msg.classList.remove('hidden');
+      setTimeout(() => msg.classList.add('hidden'), 2000);
+    }
+  </script>
+</body>
+</html>

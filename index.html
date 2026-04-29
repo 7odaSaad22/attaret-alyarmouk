@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>عطارة اليرموك — أعشاب · بهارات · زيوت طبيعية</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          colors: {
+            primary: { 50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d' },
+            accent: { 50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f' }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="navbar"></div>
+
+  <main>
+    <!-- Hero -->
+    <section class="bg-gradient-to-bl from-primary-800 via-primary-700 to-primary-900 text-white py-16 md:py-24">
+      <div class="max-w-7xl mx-auto px-4 text-center">
+        <div class="text-6xl mb-6">🌿</div>
+        <h1 class="text-3xl md:text-5xl font-extrabold mb-4">عطارة اليرموك</h1>
+        <p class="text-lg md:text-xl text-primary-100 mb-8 max-w-2xl mx-auto">أعشاب طبيعية · بهارات فاخرة · زيوت نقية · عسل أصلي · مكسرات طازجة</p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="/products.html" class="bg-accent-500 hover:bg-accent-600 text-white px-8 py-3 rounded-xl font-bold transition">تسوّق الآن</a>
+          <a href="/categories.html" class="border-2 border-white/30 hover:bg-white/10 px-8 py-3 rounded-xl font-bold transition">تصفّح التصنيفات</a>
+        </div>
+      </div>
+    </section>
+
+    <!-- Features -->
+    <section class="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-4">
+          <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">🚚</div>
+          <div><h3 class="font-bold text-sm">شحن لكل المحافظات</h3><p class="text-xs text-gray-500">توصيل سريع لباب بيتك</p></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-4">
+          <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">✅</div>
+          <div><h3 class="font-bold text-sm">منتجات أصلية 100%</h3><p class="text-xs text-gray-500">جودة مضمونة وطبيعية</p></div>
+        </div>
+        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-4">
+          <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">📞</div>
+          <div><h3 class="font-bold text-sm">تواصل مباشر</h3><p class="text-xs text-gray-500">واتساب: 01158221296</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Categories -->
+    <section class="max-w-7xl mx-auto px-4 mt-14">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-extrabold">التصنيفات</h2>
+        <a href="/categories.html" class="text-primary-600 text-sm font-bold hover:underline">عرض الكل ←</a>
+      </div>
+      <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+    </section>
+
+    <!-- Featured -->
+    <section class="max-w-7xl mx-auto px-4 mt-14">
+      <h2 class="text-2xl font-extrabold mb-6">⭐ منتجات مميزة</h2>
+      <div id="featured-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+    </section>
+
+    <!-- Latest -->
+    <section class="max-w-7xl mx-auto px-4 mt-14 mb-14">
+      <h2 class="text-2xl font-extrabold mb-6">🆕 أحدث المنتجات</h2>
+      <div id="latest-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+    </section>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    initPage();
+
+    (async () => {
+      // Categories
+      const { data: cats } = await db.from('Category').select('*').limit(8);
+      document.getElementById('categories-grid').innerHTML = (cats && cats.length)
+        ? cats.map(c => `<a href="/category.html?slug=${c.slug}" class="bg-white rounded-2xl shadow hover:shadow-lg transition p-5 text-center group"><div class="text-4xl mb-2">${c.image||'🌿'}</div><h3 class="font-bold text-sm group-hover:text-primary-700 transition">${c.name}</h3></a>`).join('')
+        : '<p class="text-gray-400 text-center col-span-full py-8">لا توجد تصنيفات</p>';
+
+      // Featured
+      const { data: feat } = await db.from('Product').select('*').eq('featured', true).eq('active', true).limit(8);
+      document.getElementById('featured-grid').innerHTML = (feat && feat.length)
+        ? feat.map(p => productCard(p)).join('')
+        : '<p class="text-gray-400 text-center col-span-full py-8">لا توجد منتجات مميزة</p>';
+
+      // Latest
+      const { data: latest } = await db.from('Product').select('*').eq('active', true).order('createdAt', { ascending: false }).limit(8);
+      document.getElementById('latest-grid').innerHTML = (latest && latest.length)
+        ? latest.map(p => productCard(p)).join('')
+        : '<p class="text-gray-400 text-center col-span-full py-8">لا توجد منتجات</p>';
+    })();
+  </script>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>التصنيف — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="navbar"></div>
+  <main class="max-w-7xl mx-auto px-4 py-10">
+    <h1 id="cat-title" class="text-3xl font-extrabold mb-8">...</h1>
+    <div id="cat-products" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+  </main>
+  <div id="footer"></div>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    initPage();
+    (async () => {
+      const slug = new URLSearchParams(location.search).get('slug');
+      const { data: cat } = await db.from('Category').select('*').eq('slug', slug).single();
+      if (!cat) { document.getElementById('cat-title').textContent = 'تصنيف غير موجود'; document.getElementById('cat-products').innerHTML = ''; return; }
+
+      document.getElementById('cat-title').textContent = (cat.image||'🌿') + ' ' + cat.name;
+      document.title = cat.name + ' — عطارة اليرموك';
+
+      const { data: products } = await db.from('Product').select('*').eq('categoryId', cat.id).eq('active', true);
+      document.getElementById('cat-products').innerHTML = (products && products.length)
+        ? products.map(p => productCard(p)).join('')
+        : '<p class="text-gray-400 text-center col-span-full py-20">لا توجد منتجات في هذا التصنيف</p>';
+    })();
+  </script>
+</body>
+</html>

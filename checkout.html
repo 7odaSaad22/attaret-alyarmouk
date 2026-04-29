@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>إتمام الطلب — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="navbar"></div>
+  <main class="max-w-2xl mx-auto px-4 py-10">
+    <h1 class="text-3xl font-extrabold mb-8">📦 إتمام الطلب</h1>
+    <form id="checkout-form" class="bg-white rounded-2xl shadow p-6 space-y-4">
+      <div>
+        <label class="block text-sm font-bold mb-1">الاسم الكامل *</label>
+        <input id="f-name" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none" placeholder="مثال: محمد أحمد">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">رقم الهاتف *</label>
+        <input id="f-phone" required type="tel" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none" placeholder="01xxxxxxxxx">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">العنوان بالتفصيل *</label>
+        <input id="f-address" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none" placeholder="الشارع - المنطقة - رقم العمارة/الشقة">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">المحافظة *</label>
+        <input id="f-city" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none" placeholder="مثال: القاهرة">
+      </div>
+      <div>
+        <label class="block text-sm font-bold mb-1">ملاحظات (اختياري)</label>
+        <textarea id="f-notes" rows="2" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none" placeholder="أي تعليمات إضافية"></textarea>
+      </div>
+
+      <div class="bg-gray-50 rounded-xl p-4 space-y-2 text-sm">
+        <div class="flex justify-between"><span>المجموع الفرعي</span><span id="s-subtotal" class="font-bold"></span></div>
+        <div class="flex justify-between"><span>الشحن</span><span id="s-shipping" class="font-bold"></span></div>
+        <hr>
+        <div class="flex justify-between text-base"><span class="font-extrabold">الإجمالي</span><span id="s-total" class="font-extrabold text-primary-700"></span></div>
+      </div>
+
+      <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-sm text-amber-800 font-bold text-center">💵 الدفع عند الاستلام (كاش)</div>
+
+      <button type="submit" id="submit-btn" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold text-lg transition">تأكيد الطلب</button>
+      <p id="error-msg" class="text-red-500 font-bold text-center hidden"></p>
+    </form>
+  </main>
+  <div id="footer"></div>
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    initPage();
+    const cart = getCart();
+    if (cart.length === 0) { location.href = '/cart.html'; }
+
+    const subtotal = getCartTotal();
+    document.getElementById('s-subtotal').textContent = subtotal.toFixed(0) + ' ' + CURRENCY;
+    document.getElementById('s-shipping').textContent = SHIPPING_COST + ' ' + CURRENCY;
+    document.getElementById('s-total').textContent = (subtotal + SHIPPING_COST).toFixed(0) + ' ' + CURRENCY;
+
+    document.getElementById('checkout-form').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = document.getElementById('submit-btn');
+      btn.disabled = true; btn.textContent = 'جاري إرسال الطلب...';
+      document.getElementById('error-msg').classList.add('hidden');
+
+      try {
+        const orderData = {
+          customerName: document.getElementById('f-name').value,
+          phone: document.getElementById('f-phone').value,
+          address: document.getElementById('f-address').value,
+          city: document.getElementById('f-city').value,
+          notes: document.getElementById('f-notes').value,
+          subtotal, shipping: SHIPPING_COST, total: subtotal + SHIPPING_COST,
+          status: 'pending', paymentMethod: 'cod'
+        };
+
+        const { data: order, error } = await db.from('Order').insert(orderData).select().single();
+        if (error) throw error;
+
+        const items = cart.map(i => ({ orderId: order.id, productId: i.id, quantity: i.qty, price: i.price }));
+        await db.from('OrderItem').insert(items);
+
+        // WhatsApp message
+        let msg = `🛒 طلب جديد #${order.id}\n👤 ${orderData.customerName}\n📞 ${orderData.phone}\n📍 ${orderData.address} - ${orderData.city}\n\n`;
+        cart.forEach(i => { msg += `• ${i.name} × ${i.qty} = ${i.price * i.qty} ${CURRENCY}\n`; });
+        msg += `\n💰 الإجمالي: ${orderData.total} ${CURRENCY}`;
+        const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(msg)}`;
+
+        clearCart();
+        location.href = `/order-success.html?id=${order.id}&wa=${encodeURIComponent(waUrl)}`;
+      } catch (err) {
+        console.error(err);
+        document.getElementById('error-msg').textContent = 'حدث خطأ — حاول مرة أخرى';
+        document.getElementById('error-msg').classList.remove('hidden');
+        btn.disabled = false; btn.textContent = 'تأكيد الطلب';
+      }
+    });
+  </script>
+</body>
+</html>
