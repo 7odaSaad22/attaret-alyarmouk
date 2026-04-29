@@ -6,9 +6,16 @@ import { Leaf, Truck, ShieldCheck, Phone } from "lucide-react";
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
-  const categories = await prisma.category.findMany({ take: 8 });
-  const featured = await prisma.product.findMany({ where: { featured: true, active: true }, take: 8 });
-  const latest = await prisma.product.findMany({ where: { active: true }, orderBy: { createdAt: "desc" }, take: 8 });
+  let categories: any[] = [];
+  let featured: any[] = [];
+  let latest: any[] = [];
+  try {
+    categories = await prisma.category.findMany({ take: 8 });
+    featured = await prisma.product.findMany({ where: { featured: true, active: true }, take: 8 });
+    latest = await prisma.product.findMany({ where: { active: true }, orderBy: { createdAt: "desc" }, take: 8 });
+  } catch (e) {
+    console.error("DB Error:", e);
+  }
 
   return (
     <>

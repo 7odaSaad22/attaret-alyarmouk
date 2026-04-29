@@ -4,7 +4,10 @@ import ProductCard from "@/components/ProductCard";
 export const dynamic = "force-dynamic";
 
 export default async function ProductsPage() {
-  const products = await prisma.product.findMany({ where: { active: true }, orderBy: { createdAt: "desc" } });
+  let products: any[] = [];
+  try {
+    products = await prisma.product.findMany({ where: { active: true }, orderBy: { createdAt: "desc" } });
+  } catch (e) { console.error("DB Error:", e); }
 
   return (
     <div className="max-w-7xl mx-auto px-4 py-10">
