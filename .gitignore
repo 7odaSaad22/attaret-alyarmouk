@@ -1,8 +1,2 @@
-node_modules/
-.next/
-*.db
-*.db-journal
 .env
-
-# Local Netlify folder
 .netlify
