@@ -184,6 +184,51 @@
     }
 
     loadOrders();
+
+    // ===== Realtime: طلبات جديدة بدون refresh =====
+    db.channel('admin-orders-realtime')
+      .on('postgres_changes', { event: 'INSERT', schema: 'public', table: 'Order' }, (payload) => {
+        const o = payload.new;
+        showAdminToast(`🔔 طلب جديد #${o.id} — ${o.customerName} — ${o.total} ${CURRENCY}`);
+        playNotificationSound();
+        loadOrders();
+      })
+      .on('postgres_changes', { event: 'UPDATE', schema: 'public', table: 'Order' }, () => {
+        loadOrders();
+      })
+      .on('postgres_changes', { event: 'DELETE', schema: 'public', table: 'Order' }, () => {
+        loadOrders();
+      })
+      .subscribe();
+
+    function showAdminToast(msg) {
+      const existing = document.querySelector('.admin-toast');
+      if (existing) existing.remove();
+      const div = document.createElement('div');
+      div.className = 'admin-toast';
+      div.style.cssText = 'position:fixed;top:20px;left:50%;transform:translateX(-50%) translateY(-100px);z-index:9999;background:linear-gradient(135deg,#16a34a,#15803d);color:#fff;padding:16px 28px;border-radius:16px;font-weight:700;font-size:14px;box-shadow:0 8px 30px rgba(0,0,0,0.2);transition:transform 0.5s cubic-bezier(0.175,0.885,0.32,1.275);max-width:90%;text-align:center;';
+      div.textContent = msg;
+      document.body.appendChild(div);
+      setTimeout(() => div.style.transform = 'translateX(-50%) translateY(0)', 10);
+      setTimeout(() => { div.style.transform = 'translateX(-50%) translateY(-100px)'; setTimeout(() => div.remove(), 500); }, 6000);
+    }
+
+    function playNotificationSound() {
+      try {
+        const ctx = new (window.AudioContext || window.webkitAudioContext)();
+        const osc = ctx.createOscillator();
+        const gain = ctx.createGain();
+        osc.connect(gain); gain.connect(ctx.destination);
+        osc.type = 'sine'; osc.frequency.value = 800; gain.gain.value = 0.3;
+        osc.start(); osc.stop(ctx.currentTime + 0.15);
+        setTimeout(() => {
+          const o2 = ctx.createOscillator(); const g2 = ctx.createGain();
+          o2.connect(g2); g2.connect(ctx.destination);
+          o2.type = 'sine'; o2.frequency.value = 1200; g2.gain.value = 0.3;
+          o2.start(); o2.stop(ctx.currentTime + 0.15);
+        }, 180);
+      } catch(e) {}
+    }
   </script>
 </body>
 </html>
