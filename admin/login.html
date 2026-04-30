@@ -31,25 +31,49 @@
     document.getElementById('login-form').addEventListener('submit', async (e) => {
       e.preventDefault();
       const btn = document.getElementById('login-btn');
+      const errEl = document.getElementById('err');
       btn.disabled = true; btn.textContent = 'جاري الدخول...';
-      document.getElementById('err').classList.add('hidden');
+      errEl.classList.add('hidden');
 
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
 
       try {
-        const { data: admin } = await db.from('Admin').select('*').eq('username', username).single();
-        if (!admin) throw new Error('not found');
+        const { data: admin, error } = await db.from('Admin').select('*').eq('username', username).single();
+        console.log('Admin query result:', admin, 'Error:', error);
 
-        const match = dcodeIO.bcrypt.compareSync(password, admin.password);
-        if (!match) throw new Error('wrong');
+        if (error || !admin) {
+          errEl.textContent = 'اسم المستخدم غلط أو RLS مفعّل على Supabase — عطّله من Table Editor';
+          errEl.classList.remove('hidden');
+          btn.disabled = false; btn.textContent = 'دخول';
+          return;
+        }
+
+        // Try bcrypt first, fallback to plain text comparison
+        let match = false;
+        try {
+          if (typeof dcodeIO !== 'undefined' && dcodeIO.bcrypt) {
+            match = dcodeIO.bcrypt.compareSync(password, admin.password);
+          }
+        } catch(be) { console.log('bcrypt error:', be); }
+
+        // Fallback: plain text match (for initial setup)
+        if (!match && password === admin.password) match = true;
+
+        if (!match) {
+          errEl.textContent = 'كلمة المرور غلط';
+          errEl.classList.remove('hidden');
+          btn.disabled = false; btn.textContent = 'دخول';
+          return;
+        }
 
         localStorage.setItem('admin_logged', 'true');
         localStorage.setItem('admin_id', admin.id);
         location.href = '/admin/';
-      } catch {
-        document.getElementById('err').textContent = 'اسم المستخدم أو كلمة المرور غلط';
-        document.getElementById('err').classList.remove('hidden');
+      } catch (ex) {
+        console.error('Login error:', ex);
+        errEl.textContent = 'حدث خطأ — تأكد إن RLS معطّل على جدول Admin في Supabase';
+        errEl.classList.remove('hidden');
         btn.disabled = false; btn.textContent = 'دخول';
       }
     });

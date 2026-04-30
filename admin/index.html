@@ -8,60 +8,219 @@
   <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <nav class="bg-white shadow px-4 py-3 flex items-center justify-between">
-    <span class="font-extrabold text-lg text-primary-700">🌿 لوحة التحكم</span>
-    <div class="flex items-center gap-4 text-sm font-bold">
-      <a href="/" class="hover:text-primary-600">الموقع ←</a>
-      <button onclick="logout()" class="text-red-500 hover:text-red-700">خروج</button>
-    </div>
-  </nav>
+<body class="bg-gray-50 text-gray-800">
+  <!-- Sidebar + Top Nav -->
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white shadow-lg fixed h-full z-40 transition-transform md:translate-x-0 translate-x-full">
+      <div class="p-5 border-b">
+        <div class="flex items-center gap-2">
+          <span class="text-2xl">🌿</span>
+          <div>
+            <h2 class="font-extrabold text-primary-700 text-sm">عطارة اليرموك</h2>
+            <p class="text-xs text-gray-400">لوحة التحكم</p>
+          </div>
+        </div>
+      </div>
+      <nav class="p-4 space-y-1">
+        <a href="/admin/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-primary-50 text-primary-700 font-bold text-sm">
+          <span>📊</span> الرئيسية
+        </a>
+        <a href="/admin/products.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition">
+          <span>📦</span> المنتجات
+        </a>
+        <a href="/admin/categories.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition">
+          <span>📂</span> التصنيفات
+        </a>
+        <a href="/admin/offers.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition">
+          <span>🏷️</span> العروض والخصومات
+        </a>
+        <a href="/admin/orders.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition">
+          <span>🧾</span> الطلبات
+        </a>
+        <a href="/admin/settings.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition">
+          <span>⚙️</span> الإعدادات
+        </a>
+        <hr class="my-3">
+        <a href="/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 text-sm transition">
+          <span>🌐</span> زيارة الموقع
+        </a>
+        <button onclick="logout()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-red-50 text-red-500 font-bold text-sm transition w-full text-right">
+          <span>🚪</span> تسجيل خروج
+        </button>
+      </nav>
+    </aside>
 
-  <main class="max-w-5xl mx-auto px-4 py-10">
-    <h1 class="text-2xl font-extrabold mb-8">مرحبًا بك في لوحة التحكم 👋</h1>
+    <!-- Main Content -->
+    <div class="flex-1 md:mr-64">
+      <!-- Top bar -->
+      <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <h1 class="text-lg font-extrabold">📊 لوحة التحكم</h1>
+        </div>
+        <span class="text-sm text-gray-400" id="date-display"></span>
+      </header>
 
-    <div id="stats" class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
-      <div class="bg-white rounded-2xl shadow p-6 text-center"><div class="text-3xl mb-1" id="s-products">-</div><p class="text-sm text-gray-500">منتج</p></div>
-      <div class="bg-white rounded-2xl shadow p-6 text-center"><div class="text-3xl mb-1" id="s-categories">-</div><p class="text-sm text-gray-500">تصنيف</p></div>
-      <div class="bg-white rounded-2xl shadow p-6 text-center"><div class="text-3xl mb-1" id="s-orders">-</div><p class="text-sm text-gray-500">طلب</p></div>
-      <div class="bg-white rounded-2xl shadow p-6 text-center"><div class="text-3xl mb-1" id="s-pending">-</div><p class="text-sm text-gray-500">طلب معلق</p></div>
-    </div>
+      <main class="p-6">
+        <!-- Stats Row 1 -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-primary-500">
+            <p class="text-xs text-gray-400 mb-1">إجمالي الإيرادات</p>
+            <p class="text-2xl font-extrabold text-primary-700" id="s-revenue">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-blue-500">
+            <p class="text-xs text-gray-400 mb-1">إجمالي الطلبات</p>
+            <p class="text-2xl font-extrabold text-blue-700" id="s-orders">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-amber-500">
+            <p class="text-xs text-gray-400 mb-1">طلبات معلقة</p>
+            <p class="text-2xl font-extrabold text-amber-600" id="s-pending">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-green-500">
+            <p class="text-xs text-gray-400 mb-1">تم التوصيل</p>
+            <p class="text-2xl font-extrabold text-green-600" id="s-delivered">...</p>
+          </div>
+        </div>
 
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-      <a href="/admin/products.html" class="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition flex items-center gap-4">
-        <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">📦</div>
-        <div><h3 class="font-bold">إدارة المنتجات</h3><p class="text-sm text-gray-400">إضافة وتعديل وحذف المنتجات</p></div>
-      </a>
-      <a href="/admin/categories.html" class="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition flex items-center gap-4">
-        <div class="bg-accent-100 text-accent-700 p-3 rounded-xl text-2xl">📂</div>
-        <div><h3 class="font-bold">إدارة التصنيفات</h3><p class="text-sm text-gray-400">إضافة وحذف التصنيفات</p></div>
-      </a>
-      <a href="/admin/orders.html" class="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition flex items-center gap-4">
-        <div class="bg-blue-100 text-blue-700 p-3 rounded-xl text-2xl">🧾</div>
-        <div><h3 class="font-bold">إدارة الطلبات</h3><p class="text-sm text-gray-400">عرض وتحديث حالة الطلبات</p></div>
-      </a>
-      <a href="/admin/settings.html" class="bg-white rounded-2xl shadow p-6 hover:shadow-lg transition flex items-center gap-4">
-        <div class="bg-gray-100 text-gray-700 p-3 rounded-xl text-2xl">⚙️</div>
-        <div><h3 class="font-bold">الإعدادات</h3><p class="text-sm text-gray-400">تغيير كلمة المرور</p></div>
-      </a>
+        <!-- Stats Row 2 -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <p class="text-xs text-gray-400 mb-1">عدد المنتجات</p>
+            <p class="text-2xl font-extrabold" id="s-products">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <p class="text-xs text-gray-400 mb-1">عدد التصنيفات</p>
+            <p class="text-2xl font-extrabold" id="s-categories">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <p class="text-xs text-gray-400 mb-1">منتجات عليها خصم</p>
+            <p class="text-2xl font-extrabold text-red-500" id="s-discounted">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <p class="text-xs text-gray-400 mb-1">منتجات مميزة</p>
+            <p class="text-2xl font-extrabold text-amber-500" id="s-featured">...</p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+          <!-- Recent Orders -->
+          <div class="bg-white rounded-2xl shadow-sm p-5">
+            <div class="flex items-center justify-between mb-4">
+              <h3 class="font-extrabold">🧾 آخر الطلبات</h3>
+              <a href="/admin/orders.html" class="text-primary-600 text-xs font-bold hover:underline">عرض الكل ←</a>
+            </div>
+            <div id="recent-orders" class="space-y-3"><div class="loader"></div></div>
+          </div>
+
+          <!-- Quick Actions -->
+          <div class="space-y-4">
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+              <h3 class="font-extrabold mb-4">⚡ إجراءات سريعة</h3>
+              <div class="grid grid-cols-2 gap-3">
+                <a href="/admin/products.html" class="bg-primary-50 hover:bg-primary-100 text-primary-700 p-4 rounded-xl text-center transition">
+                  <div class="text-2xl mb-1">➕</div>
+                  <p class="text-xs font-bold">إضافة منتج</p>
+                </a>
+                <a href="/admin/offers.html" class="bg-red-50 hover:bg-red-100 text-red-600 p-4 rounded-xl text-center transition">
+                  <div class="text-2xl mb-1">🏷️</div>
+                  <p class="text-xs font-bold">إنشاء عرض</p>
+                </a>
+                <a href="/admin/categories.html" class="bg-amber-50 hover:bg-amber-100 text-amber-700 p-4 rounded-xl text-center transition">
+                  <div class="text-2xl mb-1">📂</div>
+                  <p class="text-xs font-bold">إضافة تصنيف</p>
+                </a>
+                <a href="/admin/orders.html" class="bg-blue-50 hover:bg-blue-100 text-blue-600 p-4 rounded-xl text-center transition">
+                  <div class="text-2xl mb-1">📋</div>
+                  <p class="text-xs font-bold">عرض الطلبات</p>
+                </a>
+              </div>
+            </div>
+
+            <!-- Top Products -->
+            <div class="bg-white rounded-2xl shadow-sm p-5">
+              <h3 class="font-extrabold mb-4">🔥 أكثر المنتجات طلبًا</h3>
+              <div id="top-products" class="space-y-2"><div class="loader"></div></div>
+            </div>
+          </div>
+        </div>
+      </main>
     </div>
-  </main>
+  </div>
+
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="/js/config.js"></script>
   <script>
     if (!localStorage.getItem('admin_logged')) location.href = '/admin/login.html';
     function logout() { localStorage.removeItem('admin_logged'); localStorage.removeItem('admin_id'); location.href = '/admin/login.html'; }
+    function toggleSidebar() {
+      document.getElementById('sidebar').classList.toggle('translate-x-full');
+      document.getElementById('sidebar-overlay').classList.toggle('hidden');
+    }
+
+    document.getElementById('date-display').textContent = new Date().toLocaleDateString('ar-EG', { weekday:'long', year:'numeric', month:'long', day:'numeric' });
+
+    const statusLabels = { pending:'⏳ معلق', confirmed:'✅ مؤكد', shipped:'🚚 شحن', delivered:'📦 تم', cancelled:'❌ ملغي' };
+    const statusColors = { pending:'bg-yellow-100 text-yellow-800', confirmed:'bg-green-100 text-green-800', shipped:'bg-blue-100 text-blue-800', delivered:'bg-gray-100 text-gray-700', cancelled:'bg-red-100 text-red-800' };
 
     (async () => {
-      const { count: pc } = await db.from('Product').select('*', { count: 'exact', head: true });
-      const { count: cc } = await db.from('Category').select('*', { count: 'exact', head: true });
-      const { count: oc } = await db.from('Order').select('*', { count: 'exact', head: true });
-      const { count: pn } = await db.from('Order').select('*', { count: 'exact', head: true }).eq('status', 'pending');
-      document.getElementById('s-products').textContent = pc || 0;
+      // Orders stats
+      const { data: orders } = await db.from('Order').select('*');
+      const allOrders = orders || [];
+      const revenue = allOrders.filter(o => o.status !== 'cancelled').reduce((s, o) => s + o.total, 0);
+      const pending = allOrders.filter(o => o.status === 'pending').length;
+      const delivered = allOrders.filter(o => o.status === 'delivered').length;
+
+      document.getElementById('s-revenue').textContent = revenue.toLocaleString('ar-EG') + ' ' + CURRENCY;
+      document.getElementById('s-orders').textContent = allOrders.length;
+      document.getElementById('s-pending').textContent = pending;
+      document.getElementById('s-delivered').textContent = delivered;
+
+      // Products stats
+      const { data: products } = await db.from('Product').select('*');
+      const allProducts = products || [];
+      document.getElementById('s-products').textContent = allProducts.length;
+      document.getElementById('s-discounted').textContent = allProducts.filter(p => p.oldPrice && p.oldPrice > p.price).length;
+      document.getElementById('s-featured').textContent = allProducts.filter(p => p.featured).length;
+
+      const { count: cc } = await db.from('Category').select('*', { count:'exact', head:true });
       document.getElementById('s-categories').textContent = cc || 0;
-      document.getElementById('s-orders').textContent = oc || 0;
-      document.getElementById('s-pending').textContent = pn || 0;
+
+      // Recent orders
+      const recent = allOrders.sort((a,b) => new Date(b.createdAt) - new Date(a.createdAt)).slice(0, 5);
+      document.getElementById('recent-orders').innerHTML = recent.length
+        ? recent.map(o => `
+          <div class="flex items-center justify-between p-3 bg-gray-50 rounded-xl">
+            <div>
+              <span class="font-bold text-sm">#${o.id}</span>
+              <span class="text-xs text-gray-400 mr-2">${o.customerName}</span>
+            </div>
+            <div class="flex items-center gap-2">
+              <span class="font-bold text-sm text-primary-700">${o.total} ${CURRENCY}</span>
+              <span class="px-2 py-0.5 rounded-lg text-xs font-bold ${statusColors[o.status]||''}">${statusLabels[o.status]||o.status}</span>
+            </div>
+          </div>`).join('')
+        : '<p class="text-gray-400 text-sm text-center py-4">لا توجد طلبات بعد</p>';
+
+      // Top products by order count
+      const { data: orderItems } = await db.from('OrderItem').select('productId, quantity, Product(name)');
+      if (orderItems && orderItems.length) {
+        const counts = {};
+        orderItems.forEach(i => {
+          if (!counts[i.productId]) counts[i.productId] = { name: i.Product?.name || 'منتج', qty: 0 };
+          counts[i.productId].qty += i.quantity;
+        });
+        const top = Object.values(counts).sort((a,b) => b.qty - a.qty).slice(0, 5);
+        document.getElementById('top-products').innerHTML = top.map((p, i) => `
+          <div class="flex items-center justify-between p-2 ${i===0?'bg-amber-50 rounded-lg':''}">
+            <span class="text-sm font-bold">${i===0?'🥇':i===1?'🥈':i===2?'🥉':'•'} ${p.name}</span>
+            <span class="text-xs text-gray-500">${p.qty} طلب</span>
+          </div>`).join('');
+      } else {
+        document.getElementById('top-products').innerHTML = '<p class="text-gray-400 text-sm text-center py-4">لا توجد بيانات بعد</p>';
+      }
     })();
   </script>
 </body>

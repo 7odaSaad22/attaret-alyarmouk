@@ -5,66 +5,181 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة الطلبات — عطارة اليرموك</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'}}}}}</script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <nav class="bg-white shadow px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3"><a href="/admin/" class="text-gray-400 hover:text-primary-600">→</a><span class="font-extrabold text-primary-700">🧾 إدارة الطلبات</span></div>
-    <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold">خروج</button>
-  </nav>
+<body class="bg-gray-50 text-gray-800">
+  <div class="flex min-h-screen">
+    <aside id="sidebar" class="w-64 bg-white shadow-lg fixed h-full z-40 transition-transform md:translate-x-0 translate-x-full">
+      <div class="p-5 border-b"><div class="flex items-center gap-2"><span class="text-2xl">🌿</span><div><h2 class="font-extrabold text-primary-700 text-sm">عطارة اليرموك</h2><p class="text-xs text-gray-400">لوحة التحكم</p></div></div></div>
+      <nav class="p-4 space-y-1">
+        <a href="/admin/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📊</span> الرئيسية</a>
+        <a href="/admin/products.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📦</span> المنتجات</a>
+        <a href="/admin/categories.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📂</span> التصنيفات</a>
+        <a href="/admin/offers.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>🏷️</span> العروض والخصومات</a>
+        <a href="/admin/orders.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-blue-50 text-blue-700 font-bold text-sm"><span>🧾</span> الطلبات</a>
+        <a href="/admin/settings.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>⚙️</span> الإعدادات</a>
+        <hr class="my-3">
+        <a href="/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 text-sm transition"><span>🌐</span> زيارة الموقع</a>
+        <button onclick="logout()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-red-50 text-red-500 font-bold text-sm transition w-full text-right"><span>🚪</span> تسجيل خروج</button>
+      </nav>
+    </aside>
 
-  <main class="max-w-6xl mx-auto px-4 py-8">
-    <h1 class="text-xl font-extrabold mb-6" id="count-title">الطلبات</h1>
-    <div id="orders-list" class="space-y-4"><div class="loader"></div></div>
-  </main>
+    <div class="flex-1 md:mr-64">
+      <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <h1 class="text-lg font-extrabold">🧾 إدارة الطلبات</h1>
+        </div>
+      </header>
+
+      <main class="p-6">
+        <!-- Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-5 gap-4 mb-6">
+          <div class="bg-white rounded-2xl shadow-sm p-4 text-center border-b-4 border-gray-300 cursor-pointer hover:shadow-md transition" onclick="setFilter('')">
+            <p class="text-2xl font-extrabold" id="s-all">...</p><p class="text-xs text-gray-400">الكل</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 text-center border-b-4 border-yellow-400 cursor-pointer hover:shadow-md transition" onclick="setFilter('pending')">
+            <p class="text-2xl font-extrabold text-yellow-600" id="s-pending">...</p><p class="text-xs text-gray-400">معلق</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 text-center border-b-4 border-green-400 cursor-pointer hover:shadow-md transition" onclick="setFilter('confirmed')">
+            <p class="text-2xl font-extrabold text-green-600" id="s-confirmed">...</p><p class="text-xs text-gray-400">مؤكد</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 text-center border-b-4 border-blue-400 cursor-pointer hover:shadow-md transition" onclick="setFilter('shipped')">
+            <p class="text-2xl font-extrabold text-blue-600" id="s-shipped">...</p><p class="text-xs text-gray-400">شحن</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-4 text-center border-b-4 border-primary-400 cursor-pointer hover:shadow-md transition" onclick="setFilter('delivered')">
+            <p class="text-2xl font-extrabold text-primary-600" id="s-delivered">...</p><p class="text-xs text-gray-400">تم التوصيل</p>
+          </div>
+        </div>
+
+        <!-- Revenue -->
+        <div class="bg-gradient-to-l from-primary-700 to-primary-800 rounded-2xl shadow p-5 mb-6 text-white flex flex-wrap items-center justify-between gap-4">
+          <div><p class="text-sm opacity-80">إجمالي الإيرادات</p><p class="text-3xl font-extrabold" id="s-revenue">...</p></div>
+          <div><p class="text-sm opacity-80">متوسط قيمة الطلب</p><p class="text-2xl font-extrabold" id="s-avg">...</p></div>
+        </div>
+
+        <!-- Search & Filter -->
+        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-center">
+          <input id="search-input" oninput="filterOrders()" placeholder="🔍 ابحث بالاسم أو الهاتف..." class="flex-1 min-w-[200px] border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+          <select id="filter-status" onchange="filterOrders()" class="border rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-blue-400 outline-none">
+            <option value="">كل الحالات</option>
+            <option value="pending">⏳ معلق</option>
+            <option value="confirmed">✅ مؤكد</option>
+            <option value="shipped">🚚 شحن</option>
+            <option value="delivered">📦 تم التوصيل</option>
+            <option value="cancelled">❌ ملغي</option>
+          </select>
+          <span id="count-label" class="text-sm text-gray-400 font-bold"></span>
+        </div>
+
+        <div id="orders-list" class="space-y-4"><div class="loader"></div></div>
+      </main>
+    </div>
+  </div>
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="/js/config.js"></script>
   <script>
     if (!localStorage.getItem('admin_logged')) location.href = '/admin/login.html';
     function logout() { localStorage.removeItem('admin_logged'); location.href = '/admin/login.html'; }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('translate-x-full'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
 
-    const statusLabels = { pending: '⏳ معلق', confirmed: '✅ مؤكد', shipped: '🚚 تم الشحن', delivered: '📦 تم التوصيل', cancelled: '❌ ملغي' };
-    const statusColors = { pending: 'bg-yellow-100 text-yellow-800', confirmed: 'bg-green-100 text-green-800', shipped: 'bg-blue-100 text-blue-800', delivered: 'bg-gray-100 text-gray-800', cancelled: 'bg-red-100 text-red-800' };
+    const statusLabels = { pending:'⏳ معلق', confirmed:'✅ مؤكد', shipped:'🚚 تم الشحن', delivered:'📦 تم التوصيل', cancelled:'❌ ملغي' };
+    const statusColors = { pending:'bg-yellow-100 text-yellow-800', confirmed:'bg-green-100 text-green-800', shipped:'bg-blue-100 text-blue-800', delivered:'bg-gray-200 text-gray-700', cancelled:'bg-red-100 text-red-800' };
+
+    let allOrders = [];
 
     async function loadOrders() {
       const { data } = await db.from('Order').select('*, OrderItem(*, Product(name))').order('createdAt', { ascending: false });
-      document.getElementById('count-title').textContent = `الطلبات (${data?.length || 0})`;
+      allOrders = data || [];
 
-      document.getElementById('orders-list').innerHTML = (data && data.length)
-        ? data.map(o => `
-          <div class="bg-white rounded-2xl shadow p-5">
+      // Stats
+      const active = allOrders.filter(o => o.status !== 'cancelled');
+      const revenue = active.reduce((s, o) => s + o.total, 0);
+      document.getElementById('s-all').textContent = allOrders.length;
+      document.getElementById('s-pending').textContent = allOrders.filter(o => o.status === 'pending').length;
+      document.getElementById('s-confirmed').textContent = allOrders.filter(o => o.status === 'confirmed').length;
+      document.getElementById('s-shipped').textContent = allOrders.filter(o => o.status === 'shipped').length;
+      document.getElementById('s-delivered').textContent = allOrders.filter(o => o.status === 'delivered').length;
+      document.getElementById('s-revenue').textContent = revenue.toLocaleString('ar-EG') + ' ' + CURRENCY;
+      document.getElementById('s-avg').textContent = active.length ? Math.round(revenue / active.length) + ' ' + CURRENCY : '0';
+
+      filterOrders();
+    }
+
+    function setFilter(status) {
+      document.getElementById('filter-status').value = status;
+      filterOrders();
+    }
+
+    function filterOrders() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const statusFilter = document.getElementById('filter-status').value;
+
+      const filtered = allOrders.filter(o => {
+        if (search && !o.customerName.toLowerCase().includes(search) && !o.phone.includes(search)) return false;
+        if (statusFilter && o.status !== statusFilter) return false;
+        return true;
+      });
+
+      document.getElementById('count-label').textContent = `${filtered.length} طلب`;
+      renderOrders(filtered);
+    }
+
+    function renderOrders(orders) {
+      document.getElementById('orders-list').innerHTML = orders.length
+        ? orders.map(o => `
+          <div class="bg-white rounded-2xl shadow-sm p-5 hover:shadow-md transition">
             <div class="flex flex-wrap items-center justify-between gap-3 mb-3">
-              <div>
-                <span class="font-extrabold text-lg">#${o.id}</span>
-                <span class="text-xs text-gray-400 mr-2">${new Date(o.createdAt).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
+              <div class="flex items-center gap-3">
+                <span class="bg-gray-100 text-gray-700 px-3 py-1 rounded-lg font-extrabold">#${o.id}</span>
+                <span class="text-xs text-gray-400">${new Date(o.createdAt).toLocaleDateString('ar-EG', { year:'numeric', month:'short', day:'numeric', hour:'2-digit', minute:'2-digit' })}</span>
               </div>
               <div class="flex items-center gap-2">
-                <span class="px-3 py-1 rounded-lg text-xs font-bold ${statusColors[o.status] || ''}">${statusLabels[o.status] || o.status}</span>
-                <select onchange="updateStatus(${o.id}, this.value)" class="border rounded-lg px-2 py-1 text-xs">
-                  ${Object.keys(statusLabels).map(s => `<option value="${s}" ${s === o.status ? 'selected' : ''}>${statusLabels[s]}</option>`).join('')}
+                <span class="px-3 py-1 rounded-lg text-xs font-bold ${statusColors[o.status]||''}">${statusLabels[o.status]||o.status}</span>
+                <select onchange="updateStatus(${o.id}, this.value)" class="border rounded-lg px-2 py-1 text-xs font-bold cursor-pointer">
+                  ${Object.keys(statusLabels).map(s => `<option value="${s}" ${s===o.status?'selected':''}>${statusLabels[s]}</option>`).join('')}
                 </select>
               </div>
             </div>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 text-sm mb-3">
-              <div><span class="text-gray-400">👤</span> ${o.customerName}</div>
-              <div><span class="text-gray-400">📞</span> <a href="tel:${o.phone}" class="text-primary-600">${o.phone}</a></div>
-              <div><span class="text-gray-400">📍</span> ${o.address} - ${o.city}</div>
-              ${o.notes ? `<div><span class="text-gray-400">📝</span> ${o.notes}</div>` : ''}
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm mb-3 bg-gray-50 rounded-xl p-3">
+              <div class="flex items-center gap-2"><span class="text-gray-400 w-5">👤</span><span class="font-bold">${o.customerName}</span></div>
+              <div class="flex items-center gap-2"><span class="text-gray-400 w-5">📞</span><a href="tel:${o.phone}" class="text-primary-600 font-bold">${o.phone}</a></div>
+              <div class="flex items-center gap-2"><span class="text-gray-400 w-5">📍</span><span>${o.address}</span></div>
+              <div class="flex items-center gap-2"><span class="text-gray-400 w-5">🏙️</span><span>${o.city}</span></div>
+              ${o.notes ? `<div class="md:col-span-2 flex items-center gap-2"><span class="text-gray-400 w-5">📝</span><span class="text-amber-700">${o.notes}</span></div>` : ''}
             </div>
-            <div class="bg-gray-50 rounded-xl p-3 text-sm space-y-1">
-              ${(o.OrderItem || []).map(i => `<div class="flex justify-between"><span>${i.Product?.name || 'منتج'} × ${i.quantity}</span><span class="font-bold">${(i.price * i.quantity).toFixed(0)} ${CURRENCY}</span></div>`).join('')}
-              <hr class="my-1">
-              <div class="flex justify-between font-extrabold"><span>الإجمالي</span><span class="text-primary-700">${o.total} ${CURRENCY}</span></div>
+            <div class="bg-white border rounded-xl p-3 text-sm space-y-1 mb-3">
+              ${(o.OrderItem||[]).map(i => `
+                <div class="flex justify-between">
+                  <span>${i.Product?.name||'منتج'} <span class="text-gray-400">× ${i.quantity}</span></span>
+                  <span class="font-bold">${(i.price*i.quantity).toFixed(0)} ${CURRENCY}</span>
+                </div>`).join('')}
+              <hr class="my-2">
+              <div class="flex justify-between text-xs text-gray-400"><span>المجموع الفرعي</span><span>${o.subtotal} ${CURRENCY}</span></div>
+              <div class="flex justify-between text-xs text-gray-400"><span>الشحن</span><span>${o.shipping} ${CURRENCY}</span></div>
+              <div class="flex justify-between font-extrabold text-base pt-1"><span>الإجمالي</span><span class="text-primary-700">${o.total} ${CURRENCY}</span></div>
             </div>
-            <a href="https://wa.me/${o.phone.startsWith('0') ? '2' + o.phone : o.phone}" target="_blank" class="inline-block mt-3 bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">📱 واتساب العميل</a>
+            <div class="flex flex-wrap gap-2">
+              <a href="https://wa.me/${o.phone.startsWith('0')?'2'+o.phone:o.phone}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">📱 واتساب</a>
+              <a href="tel:${o.phone}" class="bg-blue-500 hover:bg-blue-600 text-white px-4 py-1.5 rounded-lg text-xs font-bold transition">📞 اتصال</a>
+              <button onclick="deleteOrder(${o.id})" class="bg-red-50 hover:bg-red-100 text-red-500 px-4 py-1.5 rounded-lg text-xs font-bold transition">🗑️ حذف</button>
+            </div>
           </div>`).join('')
-        : '<p class="text-gray-400 text-center py-10">لا توجد طلبات</p>';
+        : '<p class="text-gray-400 text-center py-10">لا توجد طلبات مطابقة</p>';
     }
 
     async function updateStatus(id, status) {
       await db.from('Order').update({ status }).eq('id', id);
+      loadOrders();
+    }
+
+    async function deleteOrder(id) {
+      if (!confirm('حذف هذا الطلب نهائيًا؟')) return;
+      await db.from('OrderItem').delete().eq('orderId', id);
+      await db.from('Order').delete().eq('id', id);
       loadOrders();
     }
 

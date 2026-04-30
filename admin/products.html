@@ -5,92 +5,248 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>إدارة المنتجات — عطارة اليرموك</title>
   <script src="https://cdn.tailwindcss.com"></script>
-  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'}}}}}</script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
   <link rel="stylesheet" href="/css/style.css">
 </head>
-<body class="bg-gray-100 text-gray-800">
-  <nav class="bg-white shadow px-4 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-3"><a href="/admin/" class="text-gray-400 hover:text-primary-600">→</a><span class="font-extrabold text-primary-700">📦 إدارة المنتجات</span></div>
-    <button onclick="logout()" class="text-red-500 hover:text-red-700 text-sm font-bold">خروج</button>
-  </nav>
+<body class="bg-gray-50 text-gray-800">
+  <div class="flex min-h-screen">
+    <!-- Sidebar -->
+    <aside id="sidebar" class="w-64 bg-white shadow-lg fixed h-full z-40 transition-transform md:translate-x-0 translate-x-full">
+      <div class="p-5 border-b"><div class="flex items-center gap-2"><span class="text-2xl">🌿</span><div><h2 class="font-extrabold text-primary-700 text-sm">عطارة اليرموك</h2><p class="text-xs text-gray-400">لوحة التحكم</p></div></div></div>
+      <nav class="p-4 space-y-1">
+        <a href="/admin/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📊</span> الرئيسية</a>
+        <a href="/admin/products.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-primary-50 text-primary-700 font-bold text-sm"><span>📦</span> المنتجات</a>
+        <a href="/admin/categories.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📂</span> التصنيفات</a>
+        <a href="/admin/offers.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>🏷️</span> العروض والخصومات</a>
+        <a href="/admin/orders.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>🧾</span> الطلبات</a>
+        <a href="/admin/settings.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>⚙️</span> الإعدادات</a>
+        <hr class="my-3">
+        <a href="/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 text-sm transition"><span>🌐</span> زيارة الموقع</a>
+        <button onclick="logout()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-red-50 text-red-500 font-bold text-sm transition w-full text-right"><span>🚪</span> تسجيل خروج</button>
+      </nav>
+    </aside>
 
-  <main class="max-w-6xl mx-auto px-4 py-8">
-    <div class="flex items-center justify-between mb-6">
-      <h1 class="text-xl font-extrabold" id="count-title">المنتجات</h1>
-      <button onclick="showForm()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition">+ إضافة منتج</button>
-    </div>
-
-    <!-- Add/Edit Form -->
-    <div id="form-section" class="hidden bg-white rounded-2xl shadow p-6 mb-6">
-      <h2 id="form-title" class="font-bold text-lg mb-4">إضافة منتج جديد</h2>
-      <form id="product-form" class="grid grid-cols-1 md:grid-cols-2 gap-4">
-        <input type="hidden" id="p-id">
-        <input id="p-name" required placeholder="اسم المنتج *" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
-        <select id="p-cat" required class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none"><option value="">اختر التصنيف *</option></select>
-        <input id="p-price" required type="number" step="0.01" placeholder="السعر *" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
-        <input id="p-oldprice" type="number" step="0.01" placeholder="السعر القديم (اختياري)" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
-        <input id="p-stock" type="number" placeholder="الكمية المتاحة" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
-        <input id="p-unit" placeholder="الوحدة (مثل: 100 جرام)" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
-        <input id="p-image" placeholder="رابط الصورة أو إيموجي" class="border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
-        <div class="flex items-center gap-4">
-          <label class="flex items-center gap-2"><input id="p-featured" type="checkbox"> <span class="text-sm font-bold">مميز ⭐</span></label>
-          <label class="flex items-center gap-2"><input id="p-active" type="checkbox" checked> <span class="text-sm font-bold">نشط ✅</span></label>
+    <div class="flex-1 md:mr-64">
+      <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <h1 class="text-lg font-extrabold">📦 إدارة المنتجات</h1>
         </div>
-        <textarea id="p-desc" placeholder="وصف المنتج" rows="2" class="md:col-span-2 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none"></textarea>
-        <div class="md:col-span-2 flex gap-3">
-          <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-2 rounded-xl font-bold transition">حفظ</button>
-          <button type="button" onclick="hideForm()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2 rounded-xl font-bold transition">إلغاء</button>
-        </div>
-      </form>
-    </div>
+        <button onclick="showForm()" class="bg-primary-600 hover:bg-primary-700 text-white px-4 py-2 rounded-xl font-bold text-sm transition">+ إضافة منتج</button>
+      </header>
 
-    <div id="products-list" class="space-y-3"><div class="loader"></div></div>
-  </main>
+      <main class="p-6">
+        <!-- Search & Filter -->
+        <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-center">
+          <div class="flex-1 min-w-[200px]">
+            <input id="search-input" oninput="filterProducts()" placeholder="🔍 ابحث بالاسم..." class="w-full border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+          </div>
+          <select id="filter-cat" onchange="filterProducts()" class="border rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+            <option value="">كل التصنيفات</option>
+          </select>
+          <select id="filter-status" onchange="filterProducts()" class="border rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+            <option value="">كل الحالات</option>
+            <option value="active">نشط فقط</option>
+            <option value="inactive">غير نشط</option>
+            <option value="featured">مميز ⭐</option>
+            <option value="discounted">عليه خصم 🏷️</option>
+          </select>
+          <span id="count-label" class="text-sm text-gray-400 font-bold"></span>
+        </div>
+
+        <!-- Add/Edit Form -->
+        <div id="form-section" class="hidden bg-white rounded-2xl shadow-sm p-6 mb-6 border-2 border-primary-200">
+          <h2 id="form-title" class="font-extrabold text-lg mb-4">➕ إضافة منتج جديد</h2>
+          <form id="product-form" class="space-y-4">
+            <input type="hidden" id="p-id">
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">اسم المنتج *</label>
+                <input id="p-name" required placeholder="مثال: كركم مطحون" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">التصنيف *</label>
+                <select id="p-cat" required class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none"><option value="">اختر التصنيف</option></select>
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">السعر الحالي * (${CURRENCY})</label>
+                <input id="p-price" required type="number" step="0.01" min="0" placeholder="0" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-red-400 mb-1">السعر قبل الخصم (${CURRENCY})</label>
+                <input id="p-oldprice" type="number" step="0.01" min="0" placeholder="اتركه فاضي لو مفيش خصم" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-300 outline-none" oninput="calcDiscount()">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">المخزون</label>
+                <input id="p-stock" type="number" min="0" placeholder="0" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">الوحدة</label>
+                <input id="p-unit" placeholder="مثال: 100 جرام" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none">
+              </div>
+            </div>
+
+            <div id="discount-preview" class="hidden bg-red-50 border border-red-200 rounded-xl p-3 text-sm">
+              <span class="font-bold text-red-600">🏷️ نسبة الخصم: <span id="discount-pct">0</span>%</span>
+              <span class="text-red-400 mr-4">توفير: <span id="discount-save">0</span> ${CURRENCY}</span>
+            </div>
+
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+              <div>
+                <label class="block text-xs font-bold text-gray-500 mb-1">صورة المنتج (رابط أو إيموجي)</label>
+                <input id="p-image" placeholder="https://... أو 🌿" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none" oninput="previewImage()">
+                <div id="image-preview" class="mt-2 hidden w-16 h-16 rounded-lg overflow-hidden bg-gray-100"></div>
+              </div>
+              <div class="flex items-end gap-6 pb-1">
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input id="p-featured" type="checkbox" class="w-5 h-5 accent-amber-500">
+                  <span class="text-sm font-bold">⭐ منتج مميز</span>
+                </label>
+                <label class="flex items-center gap-2 cursor-pointer">
+                  <input id="p-active" type="checkbox" checked class="w-5 h-5 accent-green-500">
+                  <span class="text-sm font-bold">✅ نشط (ظاهر للعملاء)</span>
+                </label>
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">وصف المنتج</label>
+              <textarea id="p-desc" placeholder="وصف تفصيلي للمنتج..." rows="3" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none"></textarea>
+            </div>
+
+            <div class="flex gap-3">
+              <button type="submit" id="save-btn" class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-2.5 rounded-xl font-bold transition">💾 حفظ المنتج</button>
+              <button type="button" onclick="hideForm()" class="bg-gray-200 hover:bg-gray-300 px-6 py-2.5 rounded-xl font-bold transition">إلغاء</button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Products List -->
+        <div id="products-list" class="space-y-3"><div class="loader"></div></div>
+      </main>
+    </div>
+  </div>
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
 
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
   <script src="/js/config.js"></script>
   <script>
     if (!localStorage.getItem('admin_logged')) location.href = '/admin/login.html';
     function logout() { localStorage.removeItem('admin_logged'); location.href = '/admin/login.html'; }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('translate-x-full'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
 
-    let categories = [];
+    let categories = [], allProducts = [];
 
     async function loadCategories() {
       const { data } = await db.from('Category').select('*');
       categories = data || [];
       const sel = document.getElementById('p-cat');
-      sel.innerHTML = '<option value="">اختر التصنيف *</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      const fsel = document.getElementById('filter-cat');
+      sel.innerHTML = '<option value="">اختر التصنيف</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+      fsel.innerHTML = '<option value="">كل التصنيفات</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
     }
 
     async function loadProducts() {
       const { data } = await db.from('Product').select('*, Category(name)').order('createdAt', { ascending: false });
-      document.getElementById('count-title').textContent = `المنتجات (${data?.length || 0})`;
-      document.getElementById('products-list').innerHTML = (data && data.length)
-        ? data.map(p => `
-          <div class="bg-white rounded-xl shadow p-4 flex items-center gap-4">
-            <div class="w-12 h-12 bg-gray-100 rounded-lg flex items-center justify-center text-2xl flex-shrink-0">${p.image || '🌿'}</div>
-            <div class="flex-1">
-              <h3 class="font-bold text-sm">${p.name}</h3>
-              <p class="text-xs text-gray-400">${p.Category?.name || ''} · ${p.unit || ''} ${!p.active ? '<span class="text-red-500">غير نشط</span>' : ''} ${p.featured ? '⭐' : ''}</p>
+      allProducts = data || [];
+      filterProducts();
+    }
+
+    function filterProducts() {
+      const search = document.getElementById('search-input').value.toLowerCase();
+      const catFilter = document.getElementById('filter-cat').value;
+      const statusFilter = document.getElementById('filter-status').value;
+
+      let filtered = allProducts.filter(p => {
+        if (search && !p.name.toLowerCase().includes(search)) return false;
+        if (catFilter && p.categoryId !== parseInt(catFilter)) return false;
+        if (statusFilter === 'active' && !p.active) return false;
+        if (statusFilter === 'inactive' && p.active) return false;
+        if (statusFilter === 'featured' && !p.featured) return false;
+        if (statusFilter === 'discounted' && !(p.oldPrice && p.oldPrice > p.price)) return false;
+        return true;
+      });
+
+      document.getElementById('count-label').textContent = `${filtered.length} منتج`;
+      renderProducts(filtered);
+    }
+
+    function renderProducts(products) {
+      document.getElementById('products-list').innerHTML = products.length
+        ? products.map(p => {
+          const hasDiscount = p.oldPrice && p.oldPrice > p.price;
+          const discPct = hasDiscount ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+          return `
+          <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition ${!p.active ? 'opacity-60' : ''}">
+            <div class="w-14 h-14 bg-gray-100 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
+              ${p.image ? (p.image.startsWith('http') ? `<img src="${p.image}" class="w-full h-full object-cover rounded-xl">` : p.image) : '🌿'}
             </div>
-            <span class="font-extrabold text-primary-700 text-sm">${p.price} ${CURRENCY}</span>
-            <button onclick='editProduct(${JSON.stringify(p).replace(/'/g, "&#39;")})' class="text-blue-500 hover:text-blue-700 text-sm font-bold">تعديل</button>
-            <button onclick="deleteProduct(${p.id})" class="text-red-400 hover:text-red-600 text-sm font-bold">حذف</button>
-          </div>`).join('')
-        : '<p class="text-gray-400 text-center py-10">لا توجد منتجات</p>';
+            <div class="flex-1 min-w-0">
+              <h3 class="font-bold text-sm truncate">${p.name}</h3>
+              <div class="flex flex-wrap items-center gap-2 mt-0.5">
+                <span class="text-xs text-gray-400">${p.Category?.name || ''}</span>
+                <span class="text-xs text-gray-300">·</span>
+                <span class="text-xs text-gray-400">${p.unit || 'قطعة'}</span>
+                ${p.featured ? '<span class="text-xs bg-amber-100 text-amber-700 px-1.5 py-0.5 rounded-md font-bold">⭐ مميز</span>' : ''}
+                ${!p.active ? '<span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-md font-bold">مخفي</span>' : ''}
+                ${hasDiscount ? `<span class="text-xs bg-red-100 text-red-600 px-1.5 py-0.5 rounded-md font-bold">🏷️ خصم ${discPct}%</span>` : ''}
+              </div>
+            </div>
+            <div class="text-left flex-shrink-0">
+              <div class="font-extrabold text-primary-700">${p.price} ${CURRENCY}</div>
+              ${hasDiscount ? `<div class="text-xs text-gray-400 line-through">${p.oldPrice} ${CURRENCY}</div>` : ''}
+            </div>
+            <div class="text-xs text-gray-400 flex-shrink-0 w-16 text-center">
+              <div class="font-bold ${p.stock > 0 ? 'text-green-600' : 'text-red-500'}">${p.stock > 0 ? p.stock : 'نفد'}</div>
+              <div>مخزون</div>
+            </div>
+            <div class="flex gap-2 flex-shrink-0">
+              <button onclick='editProduct(${JSON.stringify(p).replace(/'/g,"&#39;")})' class="bg-blue-50 hover:bg-blue-100 text-blue-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">✏️ تعديل</button>
+              <button onclick="toggleActive(${p.id}, ${!p.active})" class="bg-gray-50 hover:bg-gray-100 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-bold transition">${p.active ? '👁️ إخفاء' : '👁️ إظهار'}</button>
+              <button onclick="deleteProduct(${p.id})" class="bg-red-50 hover:bg-red-100 text-red-500 px-3 py-1.5 rounded-lg text-xs font-bold transition">🗑️</button>
+            </div>
+          </div>`;
+        }).join('')
+        : '<p class="text-gray-400 text-center py-10">لا توجد منتجات مطابقة</p>';
+    }
+
+    function calcDiscount() {
+      const price = parseFloat(document.getElementById('p-price').value) || 0;
+      const oldPrice = parseFloat(document.getElementById('p-oldprice').value) || 0;
+      const preview = document.getElementById('discount-preview');
+      if (oldPrice > price && price > 0) {
+        const pct = Math.round((1 - price / oldPrice) * 100);
+        document.getElementById('discount-pct').textContent = pct;
+        document.getElementById('discount-save').textContent = (oldPrice - price).toFixed(0);
+        preview.classList.remove('hidden');
+      } else {
+        preview.classList.add('hidden');
+      }
+    }
+
+    function previewImage() {
+      const val = document.getElementById('p-image').value;
+      const el = document.getElementById('image-preview');
+      if (val && val.startsWith('http')) {
+        el.innerHTML = `<img src="${val}" class="w-full h-full object-cover">`;
+        el.classList.remove('hidden');
+      } else { el.classList.add('hidden'); }
     }
 
     function slugify(text) {
       return text.replace(/\s+/g, '-').replace(/[^\u0621-\u064Aa-zA-Z0-9-]/g, '').toLowerCase() || 'product-' + Date.now();
     }
 
-    function showForm() { document.getElementById('form-section').classList.remove('hidden'); document.getElementById('form-title').textContent = 'إضافة منتج جديد'; resetForm(); }
+    function showForm() { document.getElementById('form-section').classList.remove('hidden'); document.getElementById('form-title').textContent = '➕ إضافة منتج جديد'; resetForm(); window.scrollTo({ top: 200, behavior: 'smooth' }); }
     function hideForm() { document.getElementById('form-section').classList.add('hidden'); resetForm(); }
-    function resetForm() { document.getElementById('p-id').value = ''; document.getElementById('p-name').value = ''; document.getElementById('p-cat').value = ''; document.getElementById('p-price').value = ''; document.getElementById('p-oldprice').value = ''; document.getElementById('p-stock').value = ''; document.getElementById('p-unit').value = ''; document.getElementById('p-image').value = ''; document.getElementById('p-desc').value = ''; document.getElementById('p-featured').checked = false; document.getElementById('p-active').checked = true; }
+    function resetForm() { ['p-id','p-name','p-price','p-oldprice','p-stock','p-unit','p-image','p-desc'].forEach(id => document.getElementById(id).value = ''); document.getElementById('p-cat').value = ''; document.getElementById('p-featured').checked = false; document.getElementById('p-active').checked = true; document.getElementById('discount-preview').classList.add('hidden'); document.getElementById('image-preview').classList.add('hidden'); }
 
     function editProduct(p) {
       document.getElementById('form-section').classList.remove('hidden');
-      document.getElementById('form-title').textContent = 'تعديل المنتج';
+      document.getElementById('form-title').textContent = '✏️ تعديل المنتج: ' + p.name;
       document.getElementById('p-id').value = p.id;
       document.getElementById('p-name').value = p.name;
       document.getElementById('p-cat').value = p.categoryId;
@@ -102,7 +258,8 @@
       document.getElementById('p-desc').value = p.description || '';
       document.getElementById('p-featured').checked = p.featured;
       document.getElementById('p-active').checked = p.active;
-      window.scrollTo({ top: 0, behavior: 'smooth' });
+      calcDiscount(); previewImage();
+      window.scrollTo({ top: 200, behavior: 'smooth' });
     }
 
     async function deleteProduct(id) {
@@ -111,8 +268,15 @@
       loadProducts();
     }
 
+    async function toggleActive(id, active) {
+      await db.from('Product').update({ active }).eq('id', id);
+      loadProducts();
+    }
+
     document.getElementById('product-form').addEventListener('submit', async (e) => {
       e.preventDefault();
+      const btn = document.getElementById('save-btn');
+      btn.disabled = true; btn.textContent = '⏳ جاري الحفظ...';
       const id = document.getElementById('p-id').value;
       const data = {
         name: document.getElementById('p-name').value,
@@ -133,9 +297,13 @@
       } else {
         await db.from('Product').insert(data);
       }
+      btn.disabled = false; btn.textContent = '💾 حفظ المنتج';
       hideForm();
       loadProducts();
     });
+
+    // Listen for price changes to calc discount
+    document.getElementById('p-price').addEventListener('input', calcDiscount);
 
     loadCategories();
     loadProducts();

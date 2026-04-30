@@ -1,0 +1,301 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>العروض والخصومات — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div class="flex min-h-screen">
+    <aside id="sidebar" class="w-64 bg-white shadow-lg fixed h-full z-40 transition-transform md:translate-x-0 translate-x-full">
+      <div class="p-5 border-b"><div class="flex items-center gap-2"><span class="text-2xl">🌿</span><div><h2 class="font-extrabold text-primary-700 text-sm">عطارة اليرموك</h2><p class="text-xs text-gray-400">لوحة التحكم</p></div></div></div>
+      <nav class="p-4 space-y-1">
+        <a href="/admin/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📊</span> الرئيسية</a>
+        <a href="/admin/products.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📦</span> المنتجات</a>
+        <a href="/admin/categories.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>📂</span> التصنيفات</a>
+        <a href="/admin/offers.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl bg-red-50 text-red-600 font-bold text-sm"><span>🏷️</span> العروض والخصومات</a>
+        <a href="/admin/orders.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>🧾</span> الطلبات</a>
+        <a href="/admin/settings.html" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 font-bold text-sm transition"><span>⚙️</span> الإعدادات</a>
+        <hr class="my-3">
+        <a href="/" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-gray-100 text-gray-600 text-sm transition"><span>🌐</span> زيارة الموقع</a>
+        <button onclick="logout()" class="flex items-center gap-3 px-4 py-2.5 rounded-xl hover:bg-red-50 text-red-500 font-bold text-sm transition w-full text-right"><span>🚪</span> تسجيل خروج</button>
+      </nav>
+    </aside>
+
+    <div class="flex-1 md:mr-64">
+      <header class="bg-white shadow-sm px-6 py-4 flex items-center justify-between sticky top-0 z-30">
+        <div class="flex items-center gap-3">
+          <button onclick="toggleSidebar()" class="md:hidden p-2"><svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path d="M4 6h16M4 12h16M4 18h16"/></svg></button>
+          <h1 class="text-lg font-extrabold">🏷️ العروض والخصومات</h1>
+        </div>
+      </header>
+
+      <main class="p-6">
+        <!-- Stats -->
+        <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-red-500">
+            <p class="text-xs text-gray-400 mb-1">منتجات عليها خصم</p>
+            <p class="text-2xl font-extrabold text-red-500" id="s-disc">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-amber-500">
+            <p class="text-xs text-gray-400 mb-1">منتجات مميزة</p>
+            <p class="text-2xl font-extrabold text-amber-500" id="s-feat">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-primary-500">
+            <p class="text-xs text-gray-400 mb-1">إجمالي المنتجات</p>
+            <p class="text-2xl font-extrabold" id="s-total">...</p>
+          </div>
+          <div class="bg-white rounded-2xl shadow-sm p-5 border-r-4 border-purple-500">
+            <p class="text-xs text-gray-400 mb-1">أقصى خصم</p>
+            <p class="text-2xl font-extrabold text-purple-600" id="s-maxdisc">...</p>
+          </div>
+        </div>
+
+        <!-- Quick Discount Tool -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 border-2 border-red-200">
+          <h2 class="font-extrabold text-lg mb-4">⚡ أداة الخصم السريع</h2>
+          <p class="text-sm text-gray-500 mb-4">اختر تصنيف وحدد نسبة الخصم — هيتطبق على كل منتجات التصنيف</p>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">التصنيف</label>
+              <select id="bulk-cat" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none">
+                <option value="">اختر تصنيف</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">نوع الخصم</label>
+              <select id="bulk-type" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none">
+                <option value="percent">نسبة مئوية %</option>
+                <option value="fixed">مبلغ ثابت (${CURRENCY})</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-red-400 mb-1">قيمة الخصم</label>
+              <input id="bulk-value" type="number" min="1" placeholder="مثال: 20" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-red-400 outline-none">
+            </div>
+            <button onclick="applyBulkDiscount()" class="bg-red-500 hover:bg-red-600 text-white py-3 rounded-xl font-bold transition">🏷️ تطبيق الخصم</button>
+          </div>
+          <p id="bulk-msg" class="text-sm font-bold mt-3 hidden"></p>
+        </div>
+
+        <!-- Quick Feature Tool -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 border-2 border-amber-200">
+          <h2 class="font-extrabold text-lg mb-4">⭐ تمييز المنتجات</h2>
+          <p class="text-sm text-gray-500 mb-4">اختر منتج لتمييزه — المنتجات المميزة تظهر في الصفحة الرئيسية</p>
+          <div class="flex flex-wrap gap-3 items-end">
+            <div class="flex-1 min-w-[200px]">
+              <select id="feat-product" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-amber-400 outline-none">
+                <option value="">اختر منتج لتمييزه</option>
+              </select>
+            </div>
+            <button onclick="toggleFeatured()" class="bg-amber-500 hover:bg-amber-600 text-white px-6 py-3 rounded-xl font-bold transition">⭐ تمييز / إلغاء</button>
+          </div>
+        </div>
+
+        <!-- Discounted Products -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+          <div class="flex items-center justify-between mb-4">
+            <h2 class="font-extrabold text-lg">🏷️ المنتجات عليها خصم</h2>
+            <button onclick="removeAllDiscounts()" class="text-red-400 hover:text-red-600 text-xs font-bold">إزالة كل الخصومات</button>
+          </div>
+          <div id="discounted-list" class="space-y-3"><div class="loader"></div></div>
+        </div>
+
+        <!-- Single Product Discount -->
+        <div class="bg-white rounded-2xl shadow-sm p-6 mb-6 border-2 border-purple-200">
+          <h2 class="font-extrabold text-lg mb-4">🎯 خصم على منتج واحد</h2>
+          <div class="grid grid-cols-1 md:grid-cols-4 gap-4 items-end">
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">المنتج</label>
+              <select id="single-product" class="w-full border rounded-xl px-4 py-3 outline-none" onchange="showSingleInfo()">
+                <option value="">اختر منتج</option>
+              </select>
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-gray-500 mb-1">السعر الأصلي</label>
+              <input id="single-old" type="number" readonly class="w-full border rounded-xl px-4 py-3 bg-gray-50 outline-none">
+            </div>
+            <div>
+              <label class="block text-xs font-bold text-red-400 mb-1">السعر الجديد بعد الخصم</label>
+              <input id="single-new" type="number" min="0" step="0.01" placeholder="0" class="w-full border rounded-xl px-4 py-3 focus:ring-2 focus:ring-purple-400 outline-none">
+            </div>
+            <button onclick="applySingleDiscount()" class="bg-purple-500 hover:bg-purple-600 text-white py-3 rounded-xl font-bold transition">✅ تطبيق</button>
+          </div>
+          <p id="single-msg" class="text-sm font-bold mt-3 hidden"></p>
+        </div>
+
+        <!-- Featured Products -->
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+          <h2 class="font-extrabold text-lg mb-4">⭐ المنتجات المميزة</h2>
+          <div id="featured-list" class="space-y-3"><div class="loader"></div></div>
+        </div>
+      </main>
+    </div>
+  </div>
+  <div id="sidebar-overlay" class="fixed inset-0 bg-black/30 z-30 hidden md:hidden" onclick="toggleSidebar()"></div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script>
+    if (!localStorage.getItem('admin_logged')) location.href = '/admin/login.html';
+    function logout() { localStorage.removeItem('admin_logged'); location.href = '/admin/login.html'; }
+    function toggleSidebar() { document.getElementById('sidebar').classList.toggle('translate-x-full'); document.getElementById('sidebar-overlay').classList.toggle('hidden'); }
+
+    let allProducts = [], categories = [];
+
+    async function loadAll() {
+      const [{ data: prods }, { data: cats }] = await Promise.all([
+        db.from('Product').select('*, Category(name)').order('createdAt', { ascending: false }),
+        db.from('Category').select('*')
+      ]);
+      allProducts = prods || [];
+      categories = cats || [];
+
+      // Stats
+      const discounted = allProducts.filter(p => p.oldPrice && p.oldPrice > p.price);
+      const featured = allProducts.filter(p => p.featured);
+      const maxDisc = discounted.length ? Math.max(...discounted.map(p => Math.round((1 - p.price / p.oldPrice) * 100))) : 0;
+
+      document.getElementById('s-disc').textContent = discounted.length;
+      document.getElementById('s-feat').textContent = featured.length;
+      document.getElementById('s-total').textContent = allProducts.length;
+      document.getElementById('s-maxdisc').textContent = maxDisc + '%';
+
+      // Populate dropdowns
+      document.getElementById('bulk-cat').innerHTML = '<option value="">اختر تصنيف</option>' + categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+      const prodOptions = allProducts.map(p => `<option value="${p.id}">${p.name} (${p.price} ${CURRENCY})</option>`).join('');
+      document.getElementById('feat-product').innerHTML = '<option value="">اختر منتج لتمييزه</option>' + prodOptions;
+      document.getElementById('single-product').innerHTML = '<option value="">اختر منتج</option>' + prodOptions;
+
+      // Render discounted
+      document.getElementById('discounted-list').innerHTML = discounted.length
+        ? discounted.map(p => {
+          const pct = Math.round((1 - p.price / p.oldPrice) * 100);
+          return `
+          <div class="flex items-center gap-4 p-3 bg-red-50 rounded-xl">
+            <div class="text-2xl">${p.image || '🌿'}</div>
+            <div class="flex-1">
+              <span class="font-bold text-sm">${p.name}</span>
+              <span class="text-xs text-gray-400 mr-2">${p.Category?.name || ''}</span>
+            </div>
+            <div class="text-sm">
+              <span class="line-through text-gray-400">${p.oldPrice} ${CURRENCY}</span>
+              <span class="font-extrabold text-red-600 mr-2">${p.price} ${CURRENCY}</span>
+              <span class="bg-red-200 text-red-700 text-xs px-2 py-0.5 rounded-lg font-bold">-${pct}%</span>
+            </div>
+            <button onclick="removeDiscount(${p.id}, ${p.oldPrice})" class="text-red-400 hover:text-red-600 text-xs font-bold">إزالة الخصم</button>
+          </div>`;
+        }).join('')
+        : '<p class="text-gray-400 text-sm text-center py-4">لا توجد منتجات عليها خصم</p>';
+
+      // Render featured
+      document.getElementById('featured-list').innerHTML = featured.length
+        ? featured.map(p => `
+          <div class="flex items-center gap-4 p-3 bg-amber-50 rounded-xl">
+            <div class="text-2xl">${p.image || '🌿'}</div>
+            <div class="flex-1">
+              <span class="font-bold text-sm">${p.name}</span>
+              <span class="text-xs text-gray-400 mr-2">${p.price} ${CURRENCY}</span>
+            </div>
+            <button onclick="removeFeatured(${p.id})" class="text-amber-500 hover:text-amber-700 text-xs font-bold">إلغاء التمييز</button>
+          </div>`).join('')
+        : '<p class="text-gray-400 text-sm text-center py-4">لا توجد منتجات مميزة</p>';
+    }
+
+    async function applyBulkDiscount() {
+      const catId = parseInt(document.getElementById('bulk-cat').value);
+      const type = document.getElementById('bulk-type').value;
+      const value = parseFloat(document.getElementById('bulk-value').value);
+      const msgEl = document.getElementById('bulk-msg');
+
+      if (!catId || !value || value <= 0) { showMsg(msgEl, 'اختر تصنيف وحدد قيمة الخصم', 'red'); return; }
+
+      const products = allProducts.filter(p => p.categoryId === catId);
+      if (!products.length) { showMsg(msgEl, 'لا توجد منتجات في هذا التصنيف', 'red'); return; }
+
+      if (!confirm(`تطبيق خصم ${value}${type==='percent'?'%':' '+CURRENCY} على ${products.length} منتج؟`)) return;
+
+      let count = 0;
+      for (const p of products) {
+        const originalPrice = p.oldPrice && p.oldPrice > p.price ? p.oldPrice : p.price;
+        let newPrice;
+        if (type === 'percent') {
+          newPrice = Math.round(originalPrice * (1 - value / 100));
+        } else {
+          newPrice = Math.max(1, originalPrice - value);
+        }
+        if (newPrice < originalPrice) {
+          await db.from('Product').update({ price: newPrice, oldPrice: originalPrice }).eq('id', p.id);
+          count++;
+        }
+      }
+      showMsg(msgEl, `✅ تم تطبيق الخصم على ${count} منتج`, 'green');
+      loadAll();
+    }
+
+    async function toggleFeatured() {
+      const id = parseInt(document.getElementById('feat-product').value);
+      if (!id) return;
+      const p = allProducts.find(x => x.id === id);
+      if (!p) return;
+      await db.from('Product').update({ featured: !p.featured }).eq('id', id);
+      loadAll();
+    }
+
+    function showSingleInfo() {
+      const id = parseInt(document.getElementById('single-product').value);
+      const p = allProducts.find(x => x.id === id);
+      if (p) {
+        document.getElementById('single-old').value = p.oldPrice && p.oldPrice > p.price ? p.oldPrice : p.price;
+      }
+    }
+
+    async function applySingleDiscount() {
+      const id = parseInt(document.getElementById('single-product').value);
+      const newPrice = parseFloat(document.getElementById('single-new').value);
+      const msgEl = document.getElementById('single-msg');
+      if (!id || !newPrice) { showMsg(msgEl, 'اختر منتج وحدد السعر الجديد', 'red'); return; }
+
+      const p = allProducts.find(x => x.id === id);
+      const originalPrice = p.oldPrice && p.oldPrice > p.price ? p.oldPrice : p.price;
+      if (newPrice >= originalPrice) { showMsg(msgEl, 'السعر الجديد لازم يكون أقل من الأصلي', 'red'); return; }
+
+      await db.from('Product').update({ price: newPrice, oldPrice: originalPrice }).eq('id', id);
+      const pct = Math.round((1 - newPrice / originalPrice) * 100);
+      showMsg(msgEl, `✅ تم — خصم ${pct}% (توفير ${(originalPrice-newPrice).toFixed(0)} ${CURRENCY})`, 'green');
+      loadAll();
+    }
+
+    async function removeDiscount(id, oldPrice) {
+      await db.from('Product').update({ price: oldPrice, oldPrice: null }).eq('id', id);
+      loadAll();
+    }
+
+    async function removeFeatured(id) {
+      await db.from('Product').update({ featured: false }).eq('id', id);
+      loadAll();
+    }
+
+    async function removeAllDiscounts() {
+      if (!confirm('إزالة كل الخصومات؟ كل الأسعار هترجع للأصلي')) return;
+      const discounted = allProducts.filter(p => p.oldPrice && p.oldPrice > p.price);
+      for (const p of discounted) {
+        await db.from('Product').update({ price: p.oldPrice, oldPrice: null }).eq('id', p.id);
+      }
+      loadAll();
+    }
+
+    function showMsg(el, text, color) {
+      el.textContent = text;
+      el.className = `text-sm font-bold mt-3 text-${color}-600`;
+      setTimeout(() => el.classList.add('hidden'), 4000);
+    }
+
+    loadAll();
+  </script>
+</body>
+</html>
