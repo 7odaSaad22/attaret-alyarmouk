@@ -10,8 +10,18 @@
 </head>
 <body class="bg-gray-50 text-gray-800">
   <div id="navbar"></div>
-  <main class="max-w-5xl mx-auto px-4 py-10">
-    <div id="product-content"><div class="loader"></div></div>
+  <main class="max-w-6xl mx-auto px-4 py-10">
+    <div id="product-content">
+      <!-- Skeleton -->
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
+        <div class="aspect-square skeleton"></div>
+        <div class="space-y-4"><div class="h-4 skeleton w-1/2"></div><div class="h-8 skeleton w-3/4"></div><div class="h-4 skeleton w-1/3"></div><div class="h-10 skeleton w-1/2"></div><div class="h-20 skeleton"></div><div class="h-12 skeleton"></div></div>
+      </div>
+    </div>
+    <div id="related-section" class="mt-14 hidden fade-up">
+      <h2 class="text-2xl font-extrabold mb-6">💡 منتجات ذات صلة</h2>
+      <div id="related-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger"></div>
+    </div>
   </main>
   <div id="footer"></div>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -29,49 +39,120 @@
 
       document.title = p.name + ' — عطارة اليرموك';
       const hasDiscount = p.oldPrice && p.oldPrice > p.price;
+      const discPct = hasDiscount ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+      const savings = hasDiscount ? (p.oldPrice - p.price).toFixed(0) : 0;
+      const inStock = p.stock === undefined || p.stock > 0;
 
       document.getElementById('product-content').innerHTML = `
-        <div class="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <div class="bg-white rounded-2xl shadow flex items-center justify-center aspect-square text-8xl">
-            ${p.image ? (p.image.startsWith('http') ? `<img src="${p.image}" class="w-full h-full object-cover rounded-2xl" alt="${p.name}">` : p.image) : '🌿'}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-8 fade-in visible">
+          <!-- Image -->
+          <div class="relative">
+            <div class="bg-white rounded-2xl shadow-lg flex items-center justify-center aspect-square text-9xl overflow-hidden">
+              ${p.image ? (p.image.startsWith('http') ? `<img src="${p.image}" class="w-full h-full object-cover rounded-2xl img-zoom" alt="${p.name}">` : `<span class="img-zoom">${p.image}</span>`) : '<span class="img-zoom">🌿</span>'}
+            </div>
+            ${hasDiscount ? `<span class="absolute top-4 right-4 bg-red-500 text-white px-3 py-1.5 rounded-xl font-bold text-sm pulse-badge shadow-lg">-${discPct}% خصم</span>` : ''}
+            ${p.featured ? `<span class="absolute top-4 left-4 bg-amber-400 text-white px-3 py-1.5 rounded-xl font-bold text-sm shadow-lg">⭐ مميز</span>` : ''}
           </div>
+
+          <!-- Details -->
           <div>
-            <nav class="text-sm text-gray-400 mb-4">
-              <a href="/" class="hover:text-primary-600">الرئيسية</a> /
-              <a href="/category.html?slug=${p.Category?.slug}" class="hover:text-primary-600">${p.Category?.name || ''}</a> /
+            <nav class="text-sm text-gray-400 mb-4 flex items-center gap-1 flex-wrap">
+              <a href="/" class="hover:text-primary-600 transition">الرئيسية</a>
+              <span>/</span>
+              <a href="/category.html?slug=${p.Category?.slug}" class="hover:text-primary-600 transition">${p.Category?.name || ''}</a>
+              <span>/</span>
               <span class="text-gray-600">${p.name}</span>
             </nav>
-            <h1 class="text-2xl md:text-3xl font-extrabold mb-2">${p.name}</h1>
-            <p class="text-gray-400 mb-4">${p.unit || 'قطعة'}</p>
-            <div class="flex items-center gap-3 mb-4">
-              <span class="text-3xl font-extrabold text-primary-700">${p.price} ${CURRENCY}</span>
-              ${hasDiscount ? `<span class="text-gray-400 line-through text-lg">${p.oldPrice} ${CURRENCY}</span><span class="bg-red-100 text-red-600 text-xs px-2 py-1 rounded-lg font-bold">خصم ${Math.round((1 - p.price/p.oldPrice)*100)}%</span>` : ''}
+
+            <h1 class="text-2xl md:text-3xl font-black mb-3 leading-tight">${p.name}</h1>
+
+            <div class="flex items-center gap-2 mb-4">
+              <span class="bg-primary-100 text-primary-700 text-xs px-2.5 py-1 rounded-lg font-bold">${p.Category?.name || 'عام'}</span>
+              <span class="bg-gray-100 text-gray-500 text-xs px-2.5 py-1 rounded-lg font-bold">${p.unit || 'قطعة'}</span>
+              ${inStock ? '<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-lg font-bold">✅ متوفر</span>' : '<span class="bg-red-100 text-red-600 text-xs px-2.5 py-1 rounded-lg font-bold">❌ نفد المخزون</span>'}
             </div>
-            <p class="text-gray-600 mb-6 leading-relaxed">${p.description || ''}</p>
-            <div class="flex items-center gap-3 mb-4">
-              <button onclick="changeQty(-1)" class="bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-xl font-bold text-lg transition">-</button>
-              <span id="qty" class="text-xl font-bold w-8 text-center">1</span>
-              <button onclick="changeQty(1)" class="bg-gray-200 hover:bg-gray-300 w-10 h-10 rounded-xl font-bold text-lg transition">+</button>
+
+            <!-- Price -->
+            <div class="bg-gray-50 rounded-xl p-4 mb-4">
+              <div class="flex items-center gap-3 flex-wrap">
+                <span class="text-3xl font-black text-primary-700">${p.price} ${CURRENCY}</span>
+                ${hasDiscount ? `
+                  <span class="text-gray-400 line-through text-lg">${p.oldPrice} ${CURRENCY}</span>
+                  <span class="bg-red-500 text-white text-sm px-3 py-1 rounded-lg font-bold">وفّر ${savings} ${CURRENCY}</span>
+                ` : ''}
+              </div>
+              ${hasDiscount ? `<p class="text-red-500 text-sm font-bold mt-1">🏷️ خصم ${discPct}% — السعر بعد الخصم</p>` : ''}
             </div>
-            <button onclick="handleAdd()" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold text-lg transition">🛒 أضف للسلة</button>
-            <p id="added-msg" class="text-green-600 font-bold text-center mt-3 hidden">✅ تمت الإضافة للسلة</p>
+
+            ${p.description ? `<p class="text-gray-600 mb-5 leading-relaxed text-sm">${p.description}</p>` : ''}
+
+            <!-- Quantity & Add -->
+            <div class="flex items-center gap-3 mb-4">
+              <span class="text-sm font-bold text-gray-500">الكمية:</span>
+              <div class="flex items-center bg-gray-100 rounded-xl overflow-hidden">
+                <button onclick="changeQty(-1)" class="hover:bg-gray-200 w-10 h-10 font-bold text-lg transition">-</button>
+                <span id="qty" class="text-lg font-bold w-10 text-center">1</span>
+                <button onclick="changeQty(1)" class="hover:bg-gray-200 w-10 h-10 font-bold text-lg transition">+</button>
+              </div>
+              <span class="text-sm text-gray-400">الإجمالي: <span id="total-price" class="font-bold text-primary-700">${p.price}</span> ${CURRENCY}</span>
+            </div>
+
+            <div class="space-y-3">
+              <button onclick="handleAdd()" class="w-full bg-primary-600 hover:bg-primary-700 text-white py-3.5 rounded-xl font-bold text-lg transition transform hover:scale-[1.02] shadow-lg ${!inStock ? 'opacity-50 cursor-not-allowed' : ''}" ${!inStock ? 'disabled' : ''}>
+                🛒 أضف للسلة
+              </button>
+              <a href="https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('مرحبًا، أريد الاستفسار عن المنتج: ' + p.name)}" target="_blank" class="block w-full bg-green-500 hover:bg-green-600 text-white py-3 rounded-xl font-bold text-center transition transform hover:scale-[1.02]">
+                📱 استفسر عبر واتساب
+              </a>
+            </div>
+
+            <!-- Trust -->
+            <div class="grid grid-cols-2 gap-3 mt-5">
+              <div class="bg-gray-50 rounded-xl p-3 text-center text-xs">
+                <div class="text-lg mb-1">🚚</div>
+                <span class="font-bold text-gray-600">شحن سريع</span>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center text-xs">
+                <div class="text-lg mb-1">💵</div>
+                <span class="font-bold text-gray-600">دفع عند الاستلام</span>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center text-xs">
+                <div class="text-lg mb-1">✅</div>
+                <span class="font-bold text-gray-600">منتج أصلي</span>
+              </div>
+              <div class="bg-gray-50 rounded-xl p-3 text-center text-xs">
+                <div class="text-lg mb-1">📱</div>
+                <span class="font-bold text-gray-600">دعم واتساب</span>
+              </div>
+            </div>
           </div>
         </div>`;
 
       window._product = p;
+
+      // Related products
+      const { data: related } = await db.from('Product').select('*').eq('categoryId', p.categoryId).eq('active', true).neq('id', p.id).limit(4);
+      if (related && related.length > 0) {
+        document.getElementById('related-section').classList.remove('hidden');
+        document.getElementById('related-grid').innerHTML = related.map(r => productCard(r)).join('');
+      }
+      initScrollAnimations();
     })();
 
     let qty = 1;
     function changeQty(d) {
       qty = Math.max(1, qty + d);
       document.getElementById('qty').textContent = qty;
+      if (window._product) {
+        document.getElementById('total-price').textContent = (window._product.price * qty).toFixed(0);
+      }
     }
     function handleAdd() {
       const p = window._product;
       addToCart({ id: p.id, name: p.name, slug: p.slug, price: p.price, image: p.image, unit: p.unit }, qty);
-      const msg = document.getElementById('added-msg');
-      msg.classList.remove('hidden');
-      setTimeout(() => msg.classList.add('hidden'), 2000);
+      showToast(`تم إضافة "${p.name}" × ${qty} للسلة`);
+      const icon = document.getElementById('cart-icon');
+      if (icon) { icon.classList.add('cart-bounce'); setTimeout(() => icon.classList.remove('cart-bounce'), 500); }
     }
   </script>
 </body>

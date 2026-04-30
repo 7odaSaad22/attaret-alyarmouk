@@ -27,44 +27,49 @@
       const cart = getCart();
       if (cart.length === 0) {
         document.getElementById('cart-content').innerHTML = `
-          <div class="text-center py-20">
-            <div class="text-6xl mb-4">🛒</div>
-            <p class="text-gray-400 text-xl mb-6">السلة فارغة</p>
-            <a href="/products.html" class="bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-xl font-bold transition">تسوّق الآن</a>
+          <div class="text-center py-20 fade-in visible">
+            <div class="text-7xl mb-4">🛒</div>
+            <h2 class="text-xl font-extrabold text-gray-600 mb-2">السلة فارغة</h2>
+            <p class="text-gray-400 mb-6">لسه ما ضفت حاجة! يلا اتفرج على منتجاتنا</p>
+            <a href="/products.html" class="inline-block bg-primary-600 hover:bg-primary-700 text-white px-8 py-3 rounded-xl font-bold transition transform hover:scale-105">🛒 تسوّق الآن</a>
           </div>`;
         return;
       }
 
       const subtotal = getCartTotal();
+      const itemCount = cart.reduce((s, i) => s + i.qty, 0);
       document.getElementById('cart-content').innerHTML = `
-        <div class="space-y-4 mb-6">
+        <p class="text-gray-400 text-sm mb-4">${itemCount} منتج في السلة</p>
+        <div class="space-y-3 mb-6">
           ${cart.map(item => `
-            <div class="bg-white rounded-2xl shadow p-4 flex items-center gap-4">
-              <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-3xl flex-shrink-0">
+            <div class="bg-white rounded-2xl shadow-sm p-4 flex items-center gap-4 hover:shadow-md transition">
+              <div class="w-16 h-16 bg-gray-100 rounded-xl flex items-center justify-center text-3xl flex-shrink-0 overflow-hidden">
                 ${item.image ? (item.image.startsWith('http') ? `<img src="${item.image}" class="w-full h-full object-cover rounded-xl">` : item.image) : '🌿'}
               </div>
-              <div class="flex-1">
-                <h3 class="font-bold text-sm">${item.name}</h3>
+              <div class="flex-1 min-w-0">
+                <h3 class="font-bold text-sm truncate">${item.name}</h3>
                 <p class="text-primary-700 font-bold text-sm">${item.price} ${CURRENCY}</p>
               </div>
-              <div class="flex items-center gap-2">
-                <button onclick="updateQty(${item.id}, ${item.qty - 1})" class="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg font-bold transition">-</button>
-                <span class="font-bold w-6 text-center">${item.qty}</span>
-                <button onclick="updateQty(${item.id}, ${item.qty + 1})" class="bg-gray-200 hover:bg-gray-300 w-8 h-8 rounded-lg font-bold transition">+</button>
+              <div class="flex items-center bg-gray-100 rounded-xl overflow-hidden">
+                <button onclick="updateQty(${item.id}, ${item.qty - 1})" class="hover:bg-gray-200 w-9 h-9 font-bold transition">-</button>
+                <span class="font-bold w-8 text-center text-sm">${item.qty}</span>
+                <button onclick="updateQty(${item.id}, ${item.qty + 1})" class="hover:bg-gray-200 w-9 h-9 font-bold transition">+</button>
               </div>
-              <div class="text-left w-20">
+              <div class="text-left w-20 flex-shrink-0">
                 <p class="font-extrabold text-sm">${(item.price * item.qty).toFixed(0)} ${CURRENCY}</p>
               </div>
-              <button onclick="removeItem(${item.id})" class="text-red-400 hover:text-red-600 transition text-lg">✕</button>
+              <button onclick="removeItem(${item.id})" class="text-red-400 hover:text-red-600 transition text-lg hover:scale-110 transform">✕</button>
             </div>
           `).join('')}
         </div>
-        <div class="bg-white rounded-2xl shadow p-6">
-          <div class="flex justify-between mb-2"><span>المجموع الفرعي</span><span class="font-bold">${subtotal.toFixed(0)} ${CURRENCY}</span></div>
-          <div class="flex justify-between mb-2"><span>الشحن</span><span class="font-bold">${SHIPPING_COST} ${CURRENCY}</span></div>
+        <div class="bg-white rounded-2xl shadow-sm p-6">
+          <div class="flex justify-between mb-2 text-sm"><span class="text-gray-500">المجموع الفرعي (${itemCount} منتج)</span><span class="font-bold">${subtotal.toFixed(0)} ${CURRENCY}</span></div>
+          <div class="flex justify-between mb-2 text-sm"><span class="text-gray-500">🚚 الشحن</span><span class="font-bold">${SHIPPING_COST} ${CURRENCY}</span></div>
           <hr class="my-3">
           <div class="flex justify-between text-lg"><span class="font-extrabold">الإجمالي</span><span class="font-extrabold text-primary-700">${(subtotal + SHIPPING_COST).toFixed(0)} ${CURRENCY}</span></div>
-          <a href="/checkout.html" class="block text-center bg-primary-600 hover:bg-primary-700 text-white py-3 rounded-xl font-bold mt-4 transition">إتمام الطلب</a>
+          <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 mt-3 text-center text-sm"><span class="text-amber-700 font-bold">💵 الدفع عند الاستلام</span></div>
+          <a href="/checkout.html" class="block text-center bg-primary-600 hover:bg-primary-700 text-white py-3.5 rounded-xl font-bold mt-4 transition transform hover:scale-[1.02] shadow-lg">✅ إتمام الطلب</a>
+          <a href="/products.html" class="block text-center text-primary-600 font-bold text-sm mt-3 hover:underline">← متابعة التسوق</a>
         </div>`;
     }
 
@@ -75,6 +80,7 @@
     }
     function removeItem(id) {
       removeFromCart(id);
+      showToast('تم إزالة المنتج من السلة');
       renderCartPage();
     }
   </script>

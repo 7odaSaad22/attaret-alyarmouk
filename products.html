@@ -11,8 +11,33 @@
 <body class="bg-gray-50 text-gray-800">
   <div id="navbar"></div>
   <main class="max-w-7xl mx-auto px-4 py-10">
-    <h1 class="text-3xl font-extrabold mb-8">جميع المنتجات</h1>
-    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+    <div class="flex flex-wrap items-center justify-between gap-4 mb-6 fade-up">
+      <h1 class="text-3xl font-extrabold">جميع المنتجات</h1>
+      <span id="product-count" class="text-gray-400 text-sm font-bold"></span>
+    </div>
+
+    <!-- Filters -->
+    <div class="bg-white rounded-2xl shadow-sm p-4 mb-6 flex flex-wrap gap-3 items-center fade-up">
+      <div class="flex-1 min-w-[200px]">
+        <input id="search" oninput="filterAll()" placeholder="🔍 ابحث عن منتج..." class="w-full border rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+      </div>
+      <select id="filter-cat" onchange="filterAll()" class="border rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+        <option value="">كل التصنيفات</option>
+      </select>
+      <select id="filter-sort" onchange="filterAll()" class="border rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+        <option value="newest">الأحدث</option>
+        <option value="price-asc">السعر: الأقل أولًا</option>
+        <option value="price-desc">السعر: الأعلى أولًا</option>
+        <option value="discount">أكبر خصم</option>
+      </select>
+      <select id="filter-type" onchange="filterAll()" class="border rounded-xl px-3 py-2.5 text-sm focus:ring-2 focus:ring-primary-500 outline-none">
+        <option value="">الكل</option>
+        <option value="discounted">🏷️ عروض فقط</option>
+        <option value="featured">⭐ مميز فقط</option>
+      </select>
+    </div>
+
+    <div id="products-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger">${skeletonCards(8)}</div>
   </main>
   <div id="footer"></div>
   <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
@@ -21,12 +46,54 @@
   <script src="/js/components.js"></script>
   <script>
     initPage();
+    let allProducts = [], categories = [];
+
     (async () => {
-      const { data } = await db.from('Product').select('*').eq('active', true).order('createdAt', { ascending: false });
-      document.getElementById('products-grid').innerHTML = (data && data.length)
-        ? data.map(p => productCard(p)).join('')
-        : '<p class="text-gray-400 text-center col-span-full py-20">لا توجد منتجات حاليًا</p>';
+      const [{ data: prods }, { data: cats }] = await Promise.all([
+        db.from('Product').select('*, Category(name)').eq('active', true).order('createdAt', { ascending: false }),
+        db.from('Category').select('*')
+      ]);
+      allProducts = prods || [];
+      categories = cats || [];
+
+      document.getElementById('filter-cat').innerHTML = '<option value="">كل التصنيفات</option>' +
+        categories.map(c => `<option value="${c.id}">${c.name}</option>`).join('');
+
+      // Check URL search param
+      const q = new URLSearchParams(location.search).get('q');
+      if (q) { document.getElementById('search').value = q; }
+
+      filterAll();
+      initScrollAnimations();
     })();
+
+    function filterAll() {
+      const search = document.getElementById('search').value.toLowerCase();
+      const catId = document.getElementById('filter-cat').value;
+      const sort = document.getElementById('filter-sort').value;
+      const type = document.getElementById('filter-type').value;
+
+      let filtered = allProducts.filter(p => {
+        if (search && !p.name.toLowerCase().includes(search)) return false;
+        if (catId && p.categoryId !== parseInt(catId)) return false;
+        if (type === 'discounted' && !(p.oldPrice && p.oldPrice > p.price)) return false;
+        if (type === 'featured' && !p.featured) return false;
+        return true;
+      });
+
+      if (sort === 'price-asc') filtered.sort((a, b) => a.price - b.price);
+      else if (sort === 'price-desc') filtered.sort((a, b) => b.price - a.price);
+      else if (sort === 'discount') filtered.sort((a, b) => {
+        const da = a.oldPrice ? (1 - a.price / a.oldPrice) : 0;
+        const db2 = b.oldPrice ? (1 - b.price / b.oldPrice) : 0;
+        return db2 - da;
+      });
+
+      document.getElementById('product-count').textContent = filtered.length + ' منتج';
+      document.getElementById('products-grid').innerHTML = filtered.length
+        ? filtered.map(p => productCard(p)).join('')
+        : '<p class="text-gray-400 text-center col-span-full py-20">لا توجد منتجات مطابقة</p>';
+    }
   </script>
 </body>
 </html>

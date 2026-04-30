@@ -24,55 +24,104 @@
 
   <main>
     <!-- Hero -->
-    <section class="bg-gradient-to-bl from-primary-800 via-primary-700 to-primary-900 text-white py-16 md:py-24">
-      <div class="max-w-7xl mx-auto px-4 text-center">
-        <div class="text-6xl mb-6">🌿</div>
-        <h1 class="text-3xl md:text-5xl font-extrabold mb-4">عطارة اليرموك</h1>
-        <p class="text-lg md:text-xl text-primary-100 mb-8 max-w-2xl mx-auto">أعشاب طبيعية · بهارات فاخرة · زيوت نقية · عسل أصلي · مكسرات طازجة</p>
+    <section class="hero-gradient text-white py-20 md:py-28 relative overflow-hidden">
+      <div class="absolute inset-0 opacity-10" style="background-image: url('data:image/svg+xml,%3Csvg width=60 height=60 viewBox=%270 0 60 60%27 xmlns=%27http://www.w3.org/2000/svg%27%3E%3Cg fill=%27none%27 fill-rule=%27evenodd%27%3E%3Cg fill=%27%23ffffff%27 fill-opacity=%270.4%27%3E%3Cpath d=%27M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z%27/%3E%3C/g%3E%3C/g%3E%3C/svg%3E');"></div>
+      <div class="max-w-7xl mx-auto px-4 text-center relative z-10">
+        <div class="text-7xl mb-6 animate-bounce" style="animation-duration:3s">🌿</div>
+        <h1 class="text-4xl md:text-6xl font-black mb-4 leading-tight">عطارة اليرموك</h1>
+        <p class="text-lg md:text-xl text-primary-100 mb-4 max-w-2xl mx-auto">أعشاب طبيعية · بهارات فاخرة · زيوت نقية · عسل أصلي · مكسرات طازجة</p>
+        <p class="text-sm text-primary-200 mb-8">🚚 شحن لجميع المحافظات · 💵 الدفع عند الاستلام</p>
         <div class="flex flex-wrap justify-center gap-4">
-          <a href="/products.html" class="bg-accent-500 hover:bg-accent-600 text-white px-8 py-3 rounded-xl font-bold transition">تسوّق الآن</a>
-          <a href="/categories.html" class="border-2 border-white/30 hover:bg-white/10 px-8 py-3 rounded-xl font-bold transition">تصفّح التصنيفات</a>
+          <a href="/products.html" class="bg-accent-500 hover:bg-accent-600 text-white px-8 py-3.5 rounded-xl font-bold transition transform hover:scale-105 shadow-lg">🛒 تسوّق الآن</a>
+          <a href="/categories.html" class="border-2 border-white/30 hover:bg-white/10 px-8 py-3.5 rounded-xl font-bold transition transform hover:scale-105">تصفّح التصنيفات</a>
         </div>
       </div>
     </section>
 
-    <!-- Features -->
-    <section class="max-w-7xl mx-auto px-4 -mt-8 relative z-10">
-      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-4">
-          <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">🚚</div>
-          <div><h3 class="font-bold text-sm">شحن لكل المحافظات</h3><p class="text-xs text-gray-500">توصيل سريع لباب بيتك</p></div>
+    <!-- Trust Badges -->
+    <section class="max-w-7xl mx-auto px-4 -mt-8 relative z-10 fade-up">
+      <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div class="trust-icon bg-white rounded-2xl shadow-lg p-5 text-center cursor-default">
+          <div class="text-3xl mb-2">🚚</div>
+          <h3 class="font-bold text-sm">شحن لكل المحافظات</h3>
+          <p class="text-xs text-gray-400">توصيل سريع لباب بيتك</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-4">
-          <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">✅</div>
-          <div><h3 class="font-bold text-sm">منتجات أصلية 100%</h3><p class="text-xs text-gray-500">جودة مضمونة وطبيعية</p></div>
+        <div class="trust-icon bg-white rounded-2xl shadow-lg p-5 text-center cursor-default">
+          <div class="text-3xl mb-2">💵</div>
+          <h3 class="font-bold text-sm">الدفع عند الاستلام</h3>
+          <p class="text-xs text-gray-400">ادفع لما تستلم</p>
         </div>
-        <div class="bg-white rounded-2xl shadow-lg p-6 flex items-center gap-4">
-          <div class="bg-primary-100 text-primary-700 p-3 rounded-xl text-2xl">📞</div>
-          <div><h3 class="font-bold text-sm">تواصل مباشر</h3><p class="text-xs text-gray-500">واتساب: 01158221296</p></div>
+        <div class="trust-icon bg-white rounded-2xl shadow-lg p-5 text-center cursor-default">
+          <div class="text-3xl mb-2">✅</div>
+          <h3 class="font-bold text-sm">منتجات أصلية 100%</h3>
+          <p class="text-xs text-gray-400">جودة مضمونة وطبيعية</p>
         </div>
+        <div class="trust-icon bg-white rounded-2xl shadow-lg p-5 text-center cursor-default">
+          <div class="text-3xl mb-2">📱</div>
+          <h3 class="font-bold text-sm">دعم واتساب</h3>
+          <p class="text-xs text-gray-400">تواصل معنا في أي وقت</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Offers Banner -->
+    <section id="offers-banner" class="max-w-7xl mx-auto px-4 mt-10 hidden fade-up">
+      <div class="bg-gradient-to-l from-red-600 to-red-700 rounded-2xl shadow-lg p-6 md:p-8 text-white flex flex-wrap items-center justify-between gap-4">
+        <div>
+          <span class="bg-white/20 px-3 py-1 rounded-lg text-xs font-bold mb-2 inline-block">� عروض حصرية</span>
+          <h2 class="text-2xl md:text-3xl font-black" id="offers-title">خصومات تصل إلى 50%!</h2>
+          <p class="text-red-100 text-sm mt-1" id="offers-desc">وفّر أكتر على منتجاتك المفضلة</p>
+        </div>
+        <a href="/products.html" class="bg-white text-red-600 hover:bg-red-50 px-6 py-3 rounded-xl font-bold transition transform hover:scale-105">تسوّق العروض ←</a>
       </div>
     </section>
 
     <!-- Categories -->
-    <section class="max-w-7xl mx-auto px-4 mt-14">
+    <section class="max-w-7xl mx-auto px-4 mt-14 fade-up">
       <div class="flex items-center justify-between mb-6">
-        <h2 class="text-2xl font-extrabold">التصنيفات</h2>
+        <h2 class="text-2xl font-extrabold">📂 التصنيفات</h2>
         <a href="/categories.html" class="text-primary-600 text-sm font-bold hover:underline">عرض الكل ←</a>
       </div>
-      <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+      <div id="categories-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger">${skeletonCards(4)}</div>
     </section>
 
     <!-- Featured -->
-    <section class="max-w-7xl mx-auto px-4 mt-14">
-      <h2 class="text-2xl font-extrabold mb-6">⭐ منتجات مميزة</h2>
-      <div id="featured-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+    <section class="max-w-7xl mx-auto px-4 mt-14 fade-up">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-extrabold">⭐ منتجات مميزة</h2>
+        <a href="/products.html" class="text-primary-600 text-sm font-bold hover:underline">عرض الكل ←</a>
+      </div>
+      <div id="featured-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger">${skeletonCards(4)}</div>
+    </section>
+
+    <!-- Discounted Products -->
+    <section id="discounted-section" class="max-w-7xl mx-auto px-4 mt-14 hidden fade-up">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-extrabold">🏷️ عروض وتخفيضات</h2>
+        <a href="/products.html" class="text-primary-600 text-sm font-bold hover:underline">عرض الكل ←</a>
+      </div>
+      <div id="discounted-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger"></div>
     </section>
 
     <!-- Latest -->
-    <section class="max-w-7xl mx-auto px-4 mt-14 mb-14">
-      <h2 class="text-2xl font-extrabold mb-6">🆕 أحدث المنتجات</h2>
-      <div id="latest-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4"><div class="loader col-span-full"></div></div>
+    <section class="max-w-7xl mx-auto px-4 mt-14 fade-up">
+      <div class="flex items-center justify-between mb-6">
+        <h2 class="text-2xl font-extrabold">🆕 أحدث المنتجات</h2>
+        <a href="/products.html" class="text-primary-600 text-sm font-bold hover:underline">عرض الكل ←</a>
+      </div>
+      <div id="latest-grid" class="grid grid-cols-2 md:grid-cols-4 gap-4 stagger">${skeletonCards(4)}</div>
+    </section>
+
+    <!-- CTA -->
+    <section class="max-w-7xl mx-auto px-4 mt-14 mb-14 fade-up">
+      <div class="bg-gradient-to-l from-primary-700 to-primary-800 rounded-2xl shadow-lg p-8 md:p-12 text-white text-center">
+        <h2 class="text-2xl md:text-3xl font-black mb-3">جرّب عطارة اليرموك اليوم!</h2>
+        <p class="text-primary-100 mb-6 max-w-lg mx-auto">منتجات طبيعية 100% بأسعار مناسبة مع شحن لكل المحافظات والدفع عند الاستلام</p>
+        <div class="flex flex-wrap justify-center gap-4">
+          <a href="/products.html" class="bg-white text-primary-700 hover:bg-primary-50 px-8 py-3 rounded-xl font-bold transition transform hover:scale-105">🛒 ابدأ التسوق</a>
+          <a href="https://wa.me/${WHATSAPP_NUMBER}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-8 py-3 rounded-xl font-bold transition transform hover:scale-105">📱 تواصل واتساب</a>
+        </div>
+      </div>
     </section>
   </main>
 
@@ -89,7 +138,11 @@
       // Categories
       const { data: cats } = await db.from('Category').select('*').limit(8);
       document.getElementById('categories-grid').innerHTML = (cats && cats.length)
-        ? cats.map(c => `<a href="/category.html?slug=${c.slug}" class="bg-white rounded-2xl shadow hover:shadow-lg transition p-5 text-center group"><div class="text-4xl mb-2">${c.image||'🌿'}</div><h3 class="font-bold text-sm group-hover:text-primary-700 transition">${c.name}</h3></a>`).join('')
+        ? cats.map(c => `
+          <a href="/category.html?slug=${c.slug}" class="bg-white rounded-2xl shadow hover:shadow-lg transition p-5 text-center group trust-icon">
+            <div class="text-4xl mb-2">${c.image||'🌿'}</div>
+            <h3 class="font-bold text-sm group-hover:text-primary-700 transition">${c.name}</h3>
+          </a>`).join('')
         : '<p class="text-gray-400 text-center col-span-full py-8">لا توجد تصنيفات</p>';
 
       // Featured
@@ -98,11 +151,27 @@
         ? feat.map(p => productCard(p)).join('')
         : '<p class="text-gray-400 text-center col-span-full py-8">لا توجد منتجات مميزة</p>';
 
+      // Discounted products
+      const { data: allProds } = await db.from('Product').select('*').eq('active', true);
+      const discounted = (allProds||[]).filter(p => p.oldPrice && p.oldPrice > p.price);
+      if (discounted.length > 0) {
+        const maxDisc = Math.max(...discounted.map(p => Math.round((1 - p.price / p.oldPrice) * 100)));
+        document.getElementById('offers-banner').classList.remove('hidden');
+        document.getElementById('offers-title').textContent = `خصومات تصل إلى ${maxDisc}%!`;
+        document.getElementById('offers-desc').textContent = `${discounted.length} منتج بأسعار مخفضة — لا تفوّت الفرصة`;
+
+        document.getElementById('discounted-section').classList.remove('hidden');
+        document.getElementById('discounted-grid').innerHTML = discounted.slice(0, 8).map(p => productCard(p)).join('');
+      }
+
       // Latest
       const { data: latest } = await db.from('Product').select('*').eq('active', true).order('createdAt', { ascending: false }).limit(8);
       document.getElementById('latest-grid').innerHTML = (latest && latest.length)
         ? latest.map(p => productCard(p)).join('')
         : '<p class="text-gray-400 text-center col-span-full py-8">لا توجد منتجات</p>';
+
+      // Re-init scroll animations for dynamically loaded content
+      initScrollAnimations();
     })();
   </script>
 </body>

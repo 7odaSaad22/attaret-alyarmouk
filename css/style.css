@@ -1,10 +1,72 @@
-@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;500;600;700;800;900&display=swap');
 
 * { font-family: 'Cairo', sans-serif; }
 html { scroll-behavior: smooth; }
 body { direction: rtl; min-height: 100vh; display: flex; flex-direction: column; }
 body > main { flex: 1; }
 
-.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+.line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 .loader { border: 4px solid #f3f3f3; border-top: 4px solid #16a34a; border-radius: 50%; width: 40px; height: 40px; animation: spin 0.8s linear infinite; margin: 40px auto; }
 @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* === Fade in on scroll === */
+.fade-up { opacity: 0; transform: translateY(30px); transition: opacity 0.6s ease, transform 0.6s ease; }
+.fade-up.visible { opacity: 1; transform: translateY(0); }
+.fade-in { opacity: 0; transition: opacity 0.5s ease; }
+.fade-in.visible { opacity: 1; }
+
+/* === Stagger children animation === */
+.stagger > * { opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; }
+.stagger.visible > *:nth-child(1) { transition-delay: 0.05s; }
+.stagger.visible > *:nth-child(2) { transition-delay: 0.1s; }
+.stagger.visible > *:nth-child(3) { transition-delay: 0.15s; }
+.stagger.visible > *:nth-child(4) { transition-delay: 0.2s; }
+.stagger.visible > *:nth-child(5) { transition-delay: 0.25s; }
+.stagger.visible > *:nth-child(6) { transition-delay: 0.3s; }
+.stagger.visible > *:nth-child(7) { transition-delay: 0.35s; }
+.stagger.visible > *:nth-child(8) { transition-delay: 0.4s; }
+.stagger.visible > * { opacity: 1; transform: translateY(0); }
+
+/* === Toast notification === */
+.toast { position: fixed; bottom: 24px; right: 24px; z-index: 9999; padding: 14px 24px; border-radius: 16px; color: #fff; font-weight: 700; font-size: 14px; box-shadow: 0 8px 30px rgba(0,0,0,0.15); transform: translateY(100px); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; align-items: center; gap: 8px; }
+.toast.show { transform: translateY(0); opacity: 1; }
+.toast-success { background: linear-gradient(135deg, #16a34a, #15803d); }
+.toast-error { background: linear-gradient(135deg, #dc2626, #b91c1c); }
+
+/* === Product card hover === */
+.product-card { transition: all 0.3s ease; }
+.product-card:hover { transform: translateY(-6px); box-shadow: 0 12px 30px rgba(0,0,0,0.1); }
+.product-card .cart-btn { opacity: 0; transform: translateY(10px); transition: all 0.3s ease; }
+.product-card:hover .cart-btn { opacity: 1; transform: translateY(0); }
+
+/* === Hero gradient === */
+.hero-gradient { background: linear-gradient(135deg, #14532d 0%, #15803d 40%, #16a34a 70%, #22c55e 100%); }
+
+/* === Pulse for badges === */
+.pulse-badge { animation: pulse-b 2s ease-in-out infinite; }
+@keyframes pulse-b { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
+
+/* === Skeleton loading === */
+.skeleton { background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%); background-size: 200% 100%; animation: shimmer 1.5s infinite; border-radius: 12px; }
+@keyframes shimmer { 0% { background-position: 200% 0; } 100% { background-position: -200% 0; } }
+
+/* === Trust badge icon bounce === */
+.trust-icon { transition: transform 0.3s ease; }
+.trust-icon:hover { transform: scale(1.15) rotate(-5deg); }
+
+/* === Smooth image zoom on hover === */
+.img-zoom { transition: transform 0.5s ease; }
+.img-zoom:hover { transform: scale(1.08); }
+
+/* === Countdown timer === */
+.countdown-box { background: rgba(0,0,0,0.2); border-radius: 10px; padding: 4px 10px; min-width: 50px; text-align: center; }
+
+/* === Cart animation === */
+@keyframes cartBounce { 0% { transform: scale(1); } 30% { transform: scale(1.3); } 60% { transform: scale(0.9); } 100% { transform: scale(1); } }
+.cart-bounce { animation: cartBounce 0.5s ease; }
+
+/* === Scrollbar === */
+::-webkit-scrollbar { width: 8px; }
+::-webkit-scrollbar-track { background: #f1f1f1; }
+::-webkit-scrollbar-thumb { background: #16a34a; border-radius: 10px; }
+::-webkit-scrollbar-thumb:hover { background: #15803d; }
