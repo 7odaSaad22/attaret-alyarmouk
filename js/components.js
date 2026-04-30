@@ -11,6 +11,7 @@ function renderNavbar() {
         <a href="/" class="hover:text-primary-600 transition">الرئيسية</a>
         <a href="/products.html" class="hover:text-primary-600 transition">المنتجات</a>
         <a href="/categories.html" class="hover:text-primary-600 transition">التصنيفات</a>
+        <a href="/track-order.html" class="hover:text-primary-600 transition">📦 تتبع طلبك</a>
       </div>
       <div class="flex items-center gap-3">
         <a href="/cart.html" class="relative bg-primary-50 hover:bg-primary-100 text-primary-700 p-2.5 rounded-xl transition">
@@ -26,6 +27,7 @@ function renderNavbar() {
       <a href="/" class="block py-2 font-bold hover:text-primary-600">الرئيسية</a>
       <a href="/products.html" class="block py-2 font-bold hover:text-primary-600">المنتجات</a>
       <a href="/categories.html" class="block py-2 font-bold hover:text-primary-600">التصنيفات</a>
+      <a href="/track-order.html" class="block py-2 font-bold hover:text-primary-600">📦 تتبع طلبك</a>
     </div>
   </nav>`;
 }
@@ -45,6 +47,7 @@ function renderFooter() {
           <a href="/products.html" class="block hover:text-white transition">المنتجات</a>
           <a href="/categories.html" class="block hover:text-white transition">التصنيفات</a>
           <a href="/cart.html" class="block hover:text-white transition">السلة</a>
+          <a href="/track-order.html" class="block hover:text-white transition">تتبع طلبك</a>
         </div>
       </div>
       <div>
@@ -78,8 +81,11 @@ function initPage() {
 // Product card template
 function productCard(p) {
   const hasDiscount = p.oldPrice && p.oldPrice > p.price;
+  const discPct = hasDiscount ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
   return `
-  <a href="/product.html?slug=${p.slug}" class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden group">
+  <a href="/product.html?slug=${p.slug}" class="bg-white rounded-2xl shadow hover:shadow-lg transition overflow-hidden group relative">
+    ${hasDiscount ? `<span class="absolute top-3 right-3 z-10 bg-red-500 text-white text-xs px-2 py-1 rounded-lg font-bold">-${discPct}%</span>` : ''}
+    ${p.featured ? `<span class="absolute top-3 left-3 z-10 bg-amber-400 text-white text-xs px-2 py-1 rounded-lg font-bold">⭐ مميز</span>` : ''}
     <div class="aspect-square bg-gray-100 flex items-center justify-center text-6xl">
       ${p.image ? (p.image.startsWith('http') ? `<img src="${p.image}" class="w-full h-full object-cover" alt="${p.name}">` : p.image) : '🌿'}
     </div>

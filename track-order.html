@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>تتبع طلبك — عطارة اليرموك</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>tailwind.config={theme:{extend:{colors:{primary:{50:'#f0fdf4',100:'#dcfce7',200:'#bbf7d0',300:'#86efac',400:'#4ade80',500:'#22c55e',600:'#16a34a',700:'#15803d',800:'#166534',900:'#14532d'},accent:{50:'#fffbeb',100:'#fef3c7',200:'#fde68a',300:'#fcd34d',400:'#fbbf24',500:'#f59e0b',600:'#d97706',700:'#b45309',800:'#92400e',900:'#78350f'}}}}}</script>
+  <link rel="stylesheet" href="/css/style.css">
+</head>
+<body class="bg-gray-50 text-gray-800">
+  <div id="navbar"></div>
+
+  <main class="max-w-2xl mx-auto px-4 py-10">
+    <div class="text-center mb-8">
+      <div class="text-5xl mb-3">📦</div>
+      <h1 class="text-3xl font-extrabold mb-2">تتبع طلبك</h1>
+      <p class="text-gray-500">أدخل رقم الطلب أو رقم هاتفك لمتابعة حالة طلبك</p>
+    </div>
+
+    <!-- Search Form -->
+    <div class="bg-white rounded-2xl shadow-sm p-6 mb-6">
+      <div class="flex gap-3 mb-4">
+        <button onclick="setMode('id')" id="btn-id" class="flex-1 py-2.5 rounded-xl font-bold text-sm transition bg-primary-600 text-white">بحث برقم الطلب</button>
+        <button onclick="setMode('phone')" id="btn-phone" class="flex-1 py-2.5 rounded-xl font-bold text-sm transition bg-gray-100 text-gray-600">بحث برقم الهاتف</button>
+      </div>
+      <form id="track-form" class="flex gap-3">
+        <input id="track-input" required placeholder="أدخل رقم الطلب (مثال: 1)" class="flex-1 border rounded-xl px-4 py-3 focus:ring-2 focus:ring-primary-500 outline-none text-lg" type="number">
+        <button type="submit" class="bg-primary-600 hover:bg-primary-700 text-white px-6 py-3 rounded-xl font-bold transition">🔍 بحث</button>
+      </form>
+      <p id="error-msg" class="text-red-500 text-sm font-bold text-center mt-3 hidden"></p>
+    </div>
+
+    <!-- Results -->
+    <div id="results"></div>
+  </main>
+
+  <div id="footer"></div>
+
+  <script src="https://unpkg.com/@supabase/supabase-js@2"></script>
+  <script src="/js/config.js"></script>
+  <script src="/js/cart.js"></script>
+  <script src="/js/components.js"></script>
+  <script>
+    initPage();
+
+    let searchMode = 'id';
+    function setMode(mode) {
+      searchMode = mode;
+      const input = document.getElementById('track-input');
+      if (mode === 'id') {
+        input.placeholder = 'أدخل رقم الطلب (مثال: 1)';
+        input.type = 'number';
+        document.getElementById('btn-id').className = 'flex-1 py-2.5 rounded-xl font-bold text-sm transition bg-primary-600 text-white';
+        document.getElementById('btn-phone').className = 'flex-1 py-2.5 rounded-xl font-bold text-sm transition bg-gray-100 text-gray-600';
+      } else {
+        input.placeholder = 'أدخل رقم هاتفك (مثال: 01158221296)';
+        input.type = 'tel';
+        document.getElementById('btn-phone').className = 'flex-1 py-2.5 rounded-xl font-bold text-sm transition bg-primary-600 text-white';
+        document.getElementById('btn-id').className = 'flex-1 py-2.5 rounded-xl font-bold text-sm transition bg-gray-100 text-gray-600';
+      }
+      input.value = '';
+      document.getElementById('results').innerHTML = '';
+    }
+
+    // Check URL params
+    const urlId = new URLSearchParams(location.search).get('id');
+    if (urlId) {
+      document.getElementById('track-input').value = urlId;
+      searchOrder();
+    }
+
+    document.getElementById('track-form').addEventListener('submit', (e) => { e.preventDefault(); searchOrder(); });
+
+    async function searchOrder() {
+      const val = document.getElementById('track-input').value.trim();
+      const errEl = document.getElementById('error-msg');
+      errEl.classList.add('hidden');
+      document.getElementById('results').innerHTML = '<div class="loader"></div>';
+
+      if (!val) { errEl.textContent = 'أدخل رقم الطلب أو الهاتف'; errEl.classList.remove('hidden'); document.getElementById('results').innerHTML = ''; return; }
+
+      let orders;
+      if (searchMode === 'id') {
+        const { data } = await db.from('Order').select('*, OrderItem(*, Product(name, image))').eq('id', parseInt(val));
+        orders = data;
+      } else {
+        const { data } = await db.from('Order').select('*, OrderItem(*, Product(name, image))').eq('phone', val).order('createdAt', { ascending: false });
+        orders = data;
+      }
+
+      if (!orders || orders.length === 0) {
+        errEl.textContent = 'لم يتم العثور على طلبات بهذه البيانات';
+        errEl.classList.remove('hidden');
+        document.getElementById('results').innerHTML = '';
+        return;
+      }
+
+      document.getElementById('results').innerHTML = orders.map(o => renderOrderCard(o)).join('');
+    }
+
+    const statusSteps = [
+      { key: 'pending', label: 'تم استلام الطلب', icon: '📋', color: 'yellow' },
+      { key: 'confirmed', label: 'تم تأكيد الطلب', icon: '✅', color: 'green' },
+      { key: 'shipped', label: 'جاري الشحن', icon: '🚚', color: 'blue' },
+      { key: 'delivered', label: 'تم التوصيل', icon: '📦', color: 'primary' }
+    ];
+    const statusLabels = { pending: 'تم استلام الطلب', confirmed: 'تم تأكيد الطلب', shipped: 'جاري الشحن والتوصيل', delivered: 'تم التوصيل بنجاح', cancelled: 'تم إلغاء الطلب' };
+
+    function renderOrderCard(o) {
+      const isCancelled = o.status === 'cancelled';
+      const currentIdx = statusSteps.findIndex(s => s.key === o.status);
+      const date = new Date(o.createdAt);
+      const dateStr = date.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric', hour:'2-digit', minute:'2-digit' });
+
+      return `
+      <div class="bg-white rounded-2xl shadow-sm overflow-hidden mb-6">
+        <!-- Header -->
+        <div class="bg-gradient-to-l ${isCancelled ? 'from-red-600 to-red-700' : 'from-primary-600 to-primary-700'} text-white p-5">
+          <div class="flex items-center justify-between mb-2">
+            <span class="text-2xl font-extrabold">طلب #${o.id}</span>
+            <span class="bg-white/20 px-3 py-1 rounded-lg text-sm font-bold">${isCancelled ? '❌ ملغي' : statusLabels[o.status]}</span>
+          </div>
+          <p class="text-sm opacity-80">📅 ${dateStr}</p>
+        </div>
+
+        <!-- Progress Steps -->
+        ${!isCancelled ? `
+        <div class="px-6 py-6">
+          <div class="flex items-center justify-between relative">
+            <!-- Progress Line -->
+            <div class="absolute top-5 right-5 left-5 h-1 bg-gray-200 rounded-full z-0">
+              <div class="h-full bg-primary-500 rounded-full transition-all" style="width: ${currentIdx >= 0 ? (currentIdx / (statusSteps.length - 1)) * 100 : 0}%"></div>
+            </div>
+            ${statusSteps.map((step, i) => {
+              const done = i <= currentIdx;
+              const active = i === currentIdx;
+              return `
+              <div class="relative z-10 flex flex-col items-center">
+                <div class="w-10 h-10 rounded-full flex items-center justify-center text-lg ${done ? (active ? 'bg-primary-600 text-white ring-4 ring-primary-200' : 'bg-primary-500 text-white') : 'bg-gray-200 text-gray-400'} transition">
+                  ${done ? step.icon : (i + 1)}
+                </div>
+                <p class="text-xs mt-2 font-bold ${done ? 'text-primary-700' : 'text-gray-400'} text-center max-w-[70px]">${step.label}</p>
+              </div>`;
+            }).join('')}
+          </div>
+        </div>` : `
+        <div class="px-6 py-6">
+          <div class="bg-red-50 border border-red-200 rounded-xl p-4 text-center">
+            <p class="text-red-600 font-bold text-lg">❌ تم إلغاء هذا الطلب</p>
+            <p class="text-red-400 text-sm mt-1">إذا كان هناك خطأ، تواصل معنا عبر واتساب</p>
+          </div>
+        </div>`}
+
+        <!-- Order Details -->
+        <div class="px-6 pb-6 space-y-4">
+          <!-- Customer Info -->
+          <div class="bg-gray-50 rounded-xl p-4">
+            <h3 class="font-bold text-sm mb-3 text-gray-500">📋 بيانات التوصيل</h3>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-sm">
+              <div class="flex items-center gap-2"><span class="text-gray-400">👤</span><span class="font-bold">${o.customerName}</span></div>
+              <div class="flex items-center gap-2"><span class="text-gray-400">📞</span><span>${o.phone}</span></div>
+              <div class="flex items-center gap-2"><span class="text-gray-400">📍</span><span>${o.address}</span></div>
+              <div class="flex items-center gap-2"><span class="text-gray-400">🏙️</span><span>${o.city}</span></div>
+              ${o.notes ? `<div class="md:col-span-2 flex items-center gap-2"><span class="text-gray-400">📝</span><span class="text-amber-600">${o.notes}</span></div>` : ''}
+            </div>
+          </div>
+
+          <!-- Items -->
+          <div class="bg-gray-50 rounded-xl p-4">
+            <h3 class="font-bold text-sm mb-3 text-gray-500">🛒 المنتجات</h3>
+            <div class="space-y-2">
+              ${(o.OrderItem||[]).map(i => `
+              <div class="flex items-center gap-3 bg-white rounded-lg p-2">
+                <div class="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center text-xl flex-shrink-0">${i.Product?.image || '🌿'}</div>
+                <div class="flex-1">
+                  <p class="font-bold text-sm">${i.Product?.name || 'منتج'}</p>
+                  <p class="text-xs text-gray-400">الكمية: ${i.quantity} × ${i.price} ${CURRENCY}</p>
+                </div>
+                <span class="font-bold text-sm">${(i.price * i.quantity).toFixed(0)} ${CURRENCY}</span>
+              </div>`).join('')}
+            </div>
+          </div>
+
+          <!-- Total -->
+          <div class="bg-primary-50 rounded-xl p-4 space-y-2">
+            <div class="flex justify-between text-sm"><span class="text-gray-500">المجموع الفرعي</span><span class="font-bold">${o.subtotal} ${CURRENCY}</span></div>
+            <div class="flex justify-between text-sm"><span class="text-gray-500">الشحن</span><span class="font-bold">${o.shipping} ${CURRENCY}</span></div>
+            <hr class="border-primary-200">
+            <div class="flex justify-between text-lg"><span class="font-extrabold">الإجمالي</span><span class="font-extrabold text-primary-700">${o.total} ${CURRENCY}</span></div>
+            <div class="text-center"><span class="bg-amber-100 text-amber-700 text-xs px-3 py-1 rounded-lg font-bold">💵 الدفع عند الاستلام</span></div>
+          </div>
+
+          <!-- Actions -->
+          <div class="flex flex-wrap gap-3 justify-center">
+            <a href="https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent('مرحبًا، أريد الاستفسار عن طلبي رقم #' + o.id)}" target="_blank" class="bg-green-500 hover:bg-green-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition">📱 تواصل عبر واتساب</a>
+            <a href="tel:0${WHATSAPP_NUMBER.slice(2)}" class="bg-blue-500 hover:bg-blue-600 text-white px-5 py-2.5 rounded-xl font-bold text-sm transition">📞 اتصل بنا</a>
+          </div>
+        </div>
+      </div>`;
+    }
+  </script>
+</body>
+</html>

@@ -16,9 +16,11 @@
       <h1 class="text-2xl font-extrabold mb-2">تم تأكيد طلبك بنجاح!</h1>
       <p id="order-num" class="text-gray-500 mb-6"></p>
       <p class="text-gray-600 mb-6">سيتم التواصل معك قريبًا لتأكيد الطلب والتوصيل. الدفع عند الاستلام.</p>
-      <a id="wa-link" href="#" target="_blank" class="inline-block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold transition mb-4">📱 أرسل الطلب على واتساب</a>
-      <br>
-      <a href="/" class="text-primary-600 font-bold hover:underline">← العودة للرئيسية</a>
+      <div class="space-y-3">
+        <a id="wa-link" href="#" target="_blank" class="block bg-green-500 hover:bg-green-600 text-white px-6 py-3 rounded-xl font-bold transition">📱 أرسل الطلب على واتساب</a>
+        <a id="track-link" href="/track-order.html" class="block bg-blue-500 hover:bg-blue-600 text-white px-6 py-3 rounded-xl font-bold transition">📦 تتبع حالة طلبك</a>
+        <a href="/" class="block text-primary-600 font-bold hover:underline py-2">← متابعة التسوق</a>
+      </div>
     </div>
   </main>
   <div id="footer"></div>
@@ -31,7 +33,10 @@
     const params = new URLSearchParams(location.search);
     const orderId = params.get('id');
     const waUrl = params.get('wa');
-    if (orderId) document.getElementById('order-num').textContent = 'رقم الطلب: #' + orderId;
+    if (orderId) {
+      document.getElementById('order-num').textContent = 'رقم الطلب: #' + orderId;
+      document.getElementById('track-link').href = '/track-order.html?id=' + orderId;
+    }
     if (waUrl) document.getElementById('wa-link').href = decodeURIComponent(waUrl);
   </script>
 </body>
